@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LY1 - Raccourcisseur de lien & QR Code</title>
+</head>
+
+<body>
+  <header>
+    <nav>
+      <span>LY1</span>
+      <div>
+        <a href="/login">Connexion</a>
+        <a href="/signup">Créer un compte</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section>
+      <h2>Oui,<br>
+        vous pouvez “juste” raccourcir un lien,<br>
+        ou “juste” créer un QR code
+      </h2>
+      <div>
+        <a href="/" id="shortenUrl">Raccourcir un lien</a>
+        <a href="/" id="createQrCode">Créer un QR Code</a>
+      </div>
+      <div id="shortenUrlForm">
+        <form action="/create-url" method="POST">
+          <input type="url" name="originalUrl" placeholder="https://www.google.com">
+          <button type="submit">Raccourcir</button>
+        </form>
+      </div>
+      <div id="createQrCodeForm" style="display: none;">
+        <form action="/create-qr-code" method="POST">
+          <input type="url" name="originalUrl" placeholder="https://www.google.com">
+          <button type="submit">Raccourcir1</button>
+        </form>
+      </div>
+    </section>
+
+    <section>
+      <h2>Ou alors,<br>
+        vous pouvez créer votre compte gratuitement et avoir accès à
+      </h2>
+      <ul>
+        <li>10 liens raccourci / mois</li>
+        <li>10 QR codes / mois</li>
+        <li>Un relevé de statistiques</li>
+      </ul>
+      <a href="/register">Je crée mon compte</a>
+    </section>
+  </main>
+
+  <footer>
+    <span>LY1 - Tous droits réservés - Contact - Mentions légales</span>
+  </footer>
+  <script src="script.js"></script>
+</body>
+
+</html>

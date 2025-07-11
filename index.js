@@ -21,15 +21,13 @@ const pool = new pg.Pool({
   port: process.env.PORT,
 });
 
-pool.connect();
-
 app.set("view engine", "ejs");
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public")); // Serve static files
 
 app.get("/", (req, res) => {
-  res.render("index");
+  res.render("index.ejs");
 });
 
 app.get("/login", (req, res) => {

@@ -1,0 +1,16 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap");
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Montserrat", ui-sans-serif, system-ui, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+@layer components {
+  .button-blue {
+    @apply bg-blue-600 py-3 px-3 text-white rounded-4xl;
+  }
+  .button-blue-light {
+    @apply bg-[#4891EF] py-3 px-2 text-white rounded-4xl;
+  }
+}

@@ -271,8 +271,14 @@
       margin-inline-end: calc(calc(var(--spacing) * 2) * calc(1 - var(--tw-space-x-reverse)));
     }
   }
+  .rounded {
+    border-radius: 0.25rem;
+  }
   .rounded-2xl {
     border-radius: var(--radius-2xl);
+  }
+  .rounded-\[0\.5rem\] {
+    border-radius: 0.5rem;
   }
   .border {
     border-style: var(--tw-border-style);

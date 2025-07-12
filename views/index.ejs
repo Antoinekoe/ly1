@@ -16,7 +16,7 @@
         <h1>LY1</h1>
       </a>
 
-      <%# Hamburger menu icon when not open %>
+      <!-- Hamburger menu icon when not open -->
       <div class="flex flex-col justify-between md:hidden" id="hamburger-menu-not-open">
         <span class="bg-black h-0.5 w-8 rounded-2xl">
         </span>
@@ -25,20 +25,20 @@
         <span class="bg-black h-0.5 w-8 rounded-2xl">
         </span>
       </div>
-      <%# Hamburger menu icon when open %>
+      <!-- Hamburger menu icon when open -->
       <div class="flex flex-col justify-center items-center hidden" id="hamburger-menu-open">
         <span class="bg-black h-0.5 w-8 rounded-2xl absolute rotate-45">
         </span>
         <span class="bg-black h-0.5 w-8 rounded-2xl rotate-[-45deg]">
         </span>
       </div>
-      <%# Desktop menu %>
+      <!-- Desktop menu -->
       <div class="hidden md:flex justify-center items-center gap-4 " id="desktop-menu">
         <a href="/login">Connexion</a>
         <a href="/signup" class="button-blue-light transition-shadow hover:shadow-lg">Créer un compte</a>
       </div>
     </nav>
-    <%# Menu that shows when open %>
+    <!-- Menu that shows when open -->
     <div class="hidden absolute left-0 right-0 flex flex-col w-full h-full bg-white" id="hidden-menu">
       <a href="/login" class="flex justify-center items-center border-b border-b-neutral-300 py-4 w-full text-center font-bold">Connexion</a>
       <a href="/signup" class="flex justify-center items-center border-b border-b-neutral-300 py-4 w-full text-center font-bold">Créer un compte</a>
@@ -48,40 +48,53 @@
   <main class="flex-1">
     <section class="flex flex-col justify-center items-center text-center font-bold py-12">
       <h2>Oui,<br>
-        vous pouvez “juste” raccourcir un lien,
-        ou “juste” créer un QR code
+        vous pouvez "juste" raccourcir un lien,
+        ou "juste" créer un QR code
       </h2>
     </section>
     <section class="flex flex-col justify-center items-center text-center">
+      <!-- Mode switching buttons - blue when active -->
       <div class="flex w-full justify-center space-x-2 items-center">
-        <a href="/" id="shortenUrl" class="py-3 px-2 button-blue">Raccourcir lien</a>
-        <a href="/" id="createQrCode" class="py-3 px-2">Créer QR Code</a>
+        <a href="/switch-to-url" id="shortenUrl" class="py-3 px-2 <%= activeMode === 'url' ? 'button-blue' : '' %>">Raccourcir lien</a>
+        <a href="/switch-to-qr" id="createQrCode" class="py-3 px-2 <%= activeMode === 'qr' ? 'button-blue' : '' %>">Créer QR Code</a>
       </div>
-      <% if(entryInDB === true) { %>
-      <div id="shortenUrlFormResult" class="py-3 bg-blue-600 my-12 rounded-2xl w-full md:w-[35rem]">
+      <!-- Show result form if user has created a URL -->
+      <% if(newUrl &&newUrl.length > 0) { %>
+      <div id="shortenUrlFormResult" class="py-3 bg-blue-600 my-12 rounded-2xl w-full md:w-[35rem] <%= activeMode === 'url' ? '' : 'hidden' %>">
         <form action="/create-url" method="POST" class="flex  space-x-2 px-2">
           <input id="shorturl" type="shorturl" name="newUrl" value="http://localhost:3000/<%= newUrl %>" placeholder="http://localhost:3000/<%= newUrl %>" class="bg-white rounded-[0.5rem] px-2 py-2 w-full text-sm focus:outline-none" readonly="">
           <button id="copy" type="button" class="flex justify-center items-center gap-1 cursor-pointer bg-white rounded-[0.5rem] px-2 py-2 font-semibold w-43" data-clipboard-target="#shorturl" title="Copy"><i class='bxr  bxs-copy' style='color:#838383'></i> Copier</button>
         </form>
       </div>
-      <div id="createQrCodeFormResult" class="py-3 bg-blue-600 my-12 rounded-2xl w-full md:w-[35rem] hidden">
+      <div id="createQrCodeFormResult" class="py-3 bg-blue-600 my-12 rounded-2xl w-full md:w-[35rem] <%= activeMode === 'qr' ? '' : 'hidden' %>">
         <form action="/create-qr-code" method="POST" class="flex space-x-2 px-2">
-          <input type="url" name="originalUrl" placeholder="https://www.google.com" class="bg-white rounded-[0.5rem] px-2 py-2 w-full text-sm focus:outline-none" minlength="10" required>
+          <input type="url" name="urlToQR" placeholder="https://www.google.com" class="bg-white rounded-[0.5rem] px-2 py-2 w-full text-sm focus:outline-none" minlength="10" required>
           <button type="submit" class="cursor-pointer bg-white rounded-[0.5rem] px-2 py-2 font-semibold w-43">Créer</button>
         </form>
+        <% if (qrCodeDataURL) { %>
+        <div class="mt-4 text-center qr-display">
+          <img src="<%= qrCodeDataURL %>" alt="QR Code" class="mx-auto mb-2" style="max-width: 200px;">
+        </div>
+        <% } %>
       </div>
+      <!-- Show input form if user hasn't created a URL yet -->
       <% } else { %>
-      <div id="shortenUrlForm" class="py-3 bg-blue-600 my-12 rounded-2xl w-full md:w-[35rem]">
+      <div id="shortenUrlForm" class="py-3 bg-blue-600 my-12 rounded-2xl w-full md:w-[35rem] <%= activeMode === 'url' ? '' : 'hidden' %>">
         <form action="/create-url" method="POST" class="flex space-x-2 px-2">
           <input type="url" name="originalUrl" placeholder="https://www.google.com" class="bg-white rounded-[0.5rem] px-2 py-2 w-full text-sm focus:outline-none" minlength="10" required>
           <button type="submit" class="cursor-pointer bg-white rounded-[0.5rem] px-2 py-2 font-semibold w-43">Raccourcir</button>
         </form>
       </div>
-      <div id="createQrCodeForm" class="py-3 bg-blue-600 my-12 rounded-2xl w-full md:w-[35rem] hidden">
+      <div id="createQrCodeForm" class="py-3 bg-blue-600 my-12 rounded-2xl w-full md:w-[35rem] <%= activeMode === 'qr' ? '' : 'hidden' %>">
         <form action="/create-qr-code" method="POST" class="flex space-x-2 px-2">
-          <input type="url" name="originalUrl" placeholder="https://www.google.com" class="bg-white rounded-[0.5rem] px-2 py-2 w-full text-sm focus:outline-none" minlength="10" required>
+          <input type="url" name="urlToQR" placeholder="https://www.google.com" class="bg-white rounded-[0.5rem] px-2 py-2 w-full text-sm focus:outline-none" minlength="10" required>
           <button type="submit" class="cursor-pointer bg-white rounded-[0.5rem] px-2 py-2 font-semibold w-43">Créer</button>
         </form>
+        <% if (qrCodeDataURL) { %>
+        <div class="mt-4 text-center qr-display">
+          <img src="<%= qrCodeDataURL %>" alt="QR Code" class="mx-auto mb-2" style="max-width: 200px;">
+        </div>
+        <% } %>
       </div>
       <% } %>
     </section>
@@ -109,9 +122,6 @@
     <a href="/">Contact</a>
     <a href="/">Mentions légales</a>
   </footer>
-  <script>
-    var entryInDB = <%= entryInDB %>;
-  </script>
   <script src="js/script.js"></script>
 </body>
 

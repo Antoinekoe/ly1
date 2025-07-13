@@ -59,24 +59,36 @@
         <a href="/switch-to-qr" id="createQrCode" class="py-3 px-2 <%= activeMode === 'qr' ? 'button-blue' : '' %>">Créer QR Code</a>
       </div>
       <!-- Show result form if user has created a URL -->
-      <% if(newUrl &&newUrl.length > 0) { %>
-      <div id="shortenUrlFormResult" class="py-3 bg-blue-600 my-12 rounded-2xl w-full md:w-[35rem] <%= activeMode === 'url' ? '' : 'hidden' %>">
+      <% if(newUrl && newUrl.length > 0) { %>
+      <div id="shortenUrlFormResult" class="py-3 bg-blue-600 mt-12 rounded-2xl w-full md:w-[35rem] <%= activeMode === 'url' ? '' : 'hidden' %>">
         <form action="/create-url" method="POST" class="flex  space-x-2 px-2">
           <input id="shorturl" type="shorturl" name="newUrl" value="http://localhost:3000/<%= newUrl %>" placeholder="http://localhost:3000/<%= newUrl %>" class="bg-white rounded-[0.5rem] px-2 py-2 w-full text-sm focus:outline-none" readonly="">
-          <button id="copy" type="button" class="flex justify-center items-center gap-1 cursor-pointer bg-white rounded-[0.5rem] px-2 py-2 font-semibold w-43" data-clipboard-target="#shorturl" title="Copy"><i class='bxr  bxs-copy' style='color:#838383'></i> Copier</button>
+          <button id="copy" type="button" class="flex justify-center items-center gap-1 cursor-pointer bg-white rounded-[0.5rem] px-2 py-2 font-semibold w-43" data-clipboard-target="#shorturl" title="Copy"><i class='bxr  bxs-copy' style='color:#5a5a5a'></i> Copier</button>
         </form>
+
       </div>
-      <div id="createQrCodeFormResult" class="py-3 bg-blue-600 my-12 rounded-2xl w-full md:w-[35rem] <%= activeMode === 'qr' ? '' : 'hidden' %>">
-        <form action="/create-qr-code" method="POST" class="flex space-x-2 px-2">
+      <% if(isURLCreated && activeMode === 'url') { %>
+      <div class="text-center text-gray-500 mt-1 mb-5">0/1 URL courte restante</div>
+      <% } %>
+      <div id="createQrCodeFormResult" class="flex flex-col justify-center items-center py-3 bg-blue-600 mt-12 rounded-2xl w-full md:w-[35rem] <%= activeMode === 'qr' ? '' : 'hidden' %>">
+        <form action="/create-qr-code" method="POST" class="flex w-full space-x-2 px-2">
+          <% if(!isQrCodeCreated) { %>
           <input type="url" name="urlToQR" placeholder="https://www.google.com" class="bg-white rounded-[0.5rem] px-2 py-2 w-full text-sm focus:outline-none" minlength="10" required>
           <button type="submit" class="cursor-pointer bg-white rounded-[0.5rem] px-2 py-2 font-semibold w-43">Créer</button>
+          <% } %>
         </form>
         <% if (qrCodeDataURL) { %>
-        <div class="mt-4 text-center qr-display">
-          <img src="<%= qrCodeDataURL %>" alt="QR Code" class="mx-auto mb-2" style="max-width: 200px;">
-        </div>
+        <form action="/download-qr-code" method="POST" class="flex flex-col justify-center items-center w-fit">
+          <img src="<%= qrCodeDataURL %>" alt="QR Code" class="mx-auto rounded-[0.3rem] mb-2">
+          <button type="submit" class="bg-white rounded-[0.3rem] px-4 py-2 font-semibold mx-auto cursor-pointer w-full">Télécharger</button>
+        </form>
         <% } %>
+
       </div>
+
+      <% if(isQrCodeCreated && activeMode === 'qr') { %>
+      <div class="text-center text-gray-500 mt-1">0/1 QR code restant</div>
+      <% } %>
       <!-- Show input form if user hasn't created a URL yet -->
       <% } else { %>
       <div id="shortenUrlForm" class="py-3 bg-blue-600 my-12 rounded-2xl w-full md:w-[35rem] <%= activeMode === 'url' ? '' : 'hidden' %>">
@@ -85,20 +97,26 @@
           <button type="submit" class="cursor-pointer bg-white rounded-[0.5rem] px-2 py-2 font-semibold w-43">Raccourcir</button>
         </form>
       </div>
-      <div id="createQrCodeForm" class="py-3 bg-blue-600 my-12 rounded-2xl w-full md:w-[35rem] <%= activeMode === 'qr' ? '' : 'hidden' %>">
-        <form action="/create-qr-code" method="POST" class="flex space-x-2 px-2">
+      <div id="createQrCodeForm" class="flex flex-col justify-center items-center py-3 bg-blue-600 <% if(isQrCodeCreated && activeMode === 'qr') { %> mt-12 <% } else { %> my-12 <% } %> rounded-2xl w-full md:w-[35rem] <%= activeMode === 'qr' ? '' : 'hidden' %>">
+        <form action="/create-qr-code" method="POST" class="flex w-full space-x-2 px-2">
+          <% if(!isQrCodeCreated) { %>
           <input type="url" name="urlToQR" placeholder="https://www.google.com" class="bg-white rounded-[0.5rem] px-2 py-2 w-full text-sm focus:outline-none" minlength="10" required>
-          <button type="submit" class="cursor-pointer bg-white rounded-[0.5rem] px-2 py-2 font-semibold w-43">Créer</button>
+          <% } %>
+          <button type="submit" class="cursor-pointer bg-white rounded-[0.5rem] px-2 py-2 font-semibold w-43 <%= isQrCodeCreated ? 'hidden' : '' %>">Créer</button>
         </form>
         <% if (qrCodeDataURL) { %>
-        <div class="mt-4 text-center qr-display">
-          <img src="<%= qrCodeDataURL %>" alt="QR Code" class="mx-auto mb-2" style="max-width: 200px;">
-        </div>
+        <form action="/download-qr-code" method="POST" class="flex flex-col justify-center items-center w-fit">
+          <img src="<%= qrCodeDataURL %>" alt="QR Code" class="mx-auto rounded-[0.3rem] mb-2">
+          <button type="submit" class="bg-white rounded-[0.3rem] px-4 py-2 font-semibold mx-auto cursor-pointer w-full">Télécharger</button>
+        </form>
         <% } %>
       </div>
+      <% if(isQrCodeCreated && activeMode === 'qr') { %>
+      <div class="mt-1 text-center text-gray-500 mb-5">0/1 QR code restant</div>
+      <% } %>
       <% } %>
     </section>
-    <section class="flex flex-col justify-center items-center text-center font-bold mb-9">
+    <section class="flex flex-col justify-center items-center text-center font-bold my-11">
       <h2>Ou alors,<br>
         vous pouvez créer votre compte gratuitement et avoir accès à
       </h2>
@@ -122,6 +140,9 @@
     <a href="/">Contact</a>
     <a href="/">Mentions légales</a>
   </footer>
+  <script>
+    var isURLCreated = <%= isURLCreated %>;
+  </script>
   <script src="js/script.js"></script>
 </body>
 

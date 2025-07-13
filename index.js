@@ -40,6 +40,14 @@ app.use(express.static("public")); // Serve static files
 app.get("/", async (req, res) => {
   // Home page - render with session data
 
+  // Set the isQrCodeCreated to false
+  if (req.session.isQrCodeCreated === undefined) {
+    req.session.isQrCodeCreated = false;
+  }
+  // Set the isURLCreated to false
+  if (req.session.isURLCreated === undefined) {
+    req.session.isURLCreated = false;
+  }
   // Set the activeMode to URL by default
   if (req.session.activeMode === undefined) {
     req.session.activeMode = "url";
@@ -48,6 +56,8 @@ app.get("/", async (req, res) => {
     newUrl: req.session.newUrl,
     activeMode: req.session.activeMode,
     qrCodeDataURL: req.session.qrCodeDataURL,
+    isQrCodeCreated: req.session.isQrCodeCreated,
+    isURLCreated: req.session.isURLCreated,
   });
 });
 
@@ -81,41 +91,71 @@ app.get("/register", (req, res) => {
   res.render("register");
 });
 
-app.post("/create-url", async (req, res) => {
-  const oldUrl = req.body.originalUrl;
-  const newUrl = nanoid(6); // Generate 6-char random ID
-
-  req.session.oldUrl = oldUrl;
-  req.session.newUrl = newUrl;
-  req.session.activeMode = "url";
-
-  res.redirect("/");
-});
-
-app.post("/create-qr-code", async (req, res) => {
-  try {
-    const dataURL = await QRCode.toDataURL(req.body.urlToQR);
-
-    // Store QR code data in session
-    req.session.qrCodeDataURL = dataURL;
-    req.session.activeMode = "qr";
+app.post("/create-url", (req, res) => {
+  if (req.session.isURLCreated === true) {
     res.redirect("/");
-  } catch (error) {
-    console.log("Error creating QR code :", error);
+  } else {
+    const oldUrl = req.body.originalUrl;
+    const newUrl = nanoid(6); // Generate 6-char random ID
+
+    req.session.oldUrl = oldUrl;
+    req.session.newUrl = newUrl;
+    req.session.activeMode = "url";
+    req.session.isURLCreated = true;
     res.redirect("/");
   }
 });
 
-app.get("/:id", async (req, res) => {
-  const idRequested = req.params.id;
-  const result = await pool.query("SELECT * FROM links WHERE new_url=$1", [
-    idRequested,
-  ]);
-  if (result.rows.length > 0) {
-    const oldUrl = result.rows[0].old_url;
-    res.redirect(oldUrl); // Redirect to original URL
+app.post("/download-qr-code", async (req, res) => {
+  if (req.session.qrCodeDataURL) {
+    try {
+      //Replace the data type to base 64, and buffer it for the browser to be able to read it
+      const dataURL = req.session.qrCodeDataURL;
+      const base64 = dataURL.replace(/^data:image\/png;base64,/, "");
+      const buffer = Buffer.from(base64, "base64");
+
+      //Set the header for browser request with the type of the image sent, tells it to download, and set the length
+      res.setHeader("Content-Type", "image/png");
+      res.setHeader("Content-Disposition", "attachment; filename=qr-code.png ");
+      res.setHeader("Content-Length", buffer.length);
+
+      res.send(buffer);
+    } catch (error) {
+      console.log("Error downloading QR code :", error);
+      return res.redirect("/");
+    }
   } else {
-    // Handle case when short URL doesn't exist
+    return res.redirect("/");
+  }
+});
+
+app.post("/create-qr-code", async (req, res) => {
+  if (req.session.isQrCodeCreated === true) {
+    res.redirect("/");
+  } else {
+    try {
+      const dataURL = await QRCode.toDataURL(req.body.urlToQR);
+
+      // Store QR code data in session
+      req.session.qrCodeDataURL = dataURL;
+      req.session.activeMode = "qr";
+      req.session.isQrCodeCreated = true;
+      res.redirect("/");
+    } catch (error) {
+      console.log("Error creating QR code :", error);
+      res.redirect("/");
+    }
+  }
+});
+
+app.get("/:id", async (req, res) => {
+  const shortUrlRequested = req.params.id;
+  const newUrl = req.session.newUrl;
+  const oldUrl = req.session.oldUrl;
+
+  if (shortUrlRequested === newUrl) {
+    res.redirect(oldUrl);
+  } else {
     res.status(404).send("Short URL not found");
   }
 });

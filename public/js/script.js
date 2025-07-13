@@ -33,25 +33,27 @@ document.addEventListener("DOMContentLoaded", function () {
   // ===== COPY TO CLIPBOARD FUNCTIONALITY =====
 
   // Copy short URL to clipboard when "Copier" button is clicked
-  document.getElementById("copy").addEventListener("click", function () {
-    // Get the input field containing the short URL
-    var input = document.getElementById("shorturl");
+  if (isURLCreated) {
+    document.getElementById("copy").addEventListener("click", function () {
+      // Get the input field containing the short URL
+      var input = document.getElementById("shorturl");
 
-    // Select all text in the input field
-    input.select();
-    input.setSelectionRange(0, 99999); // Ensure selection works on mobile devices
+      // Select all text in the input field
+      input.select();
+      input.setSelectionRange(0, 99999); // Ensure selection works on mobile devices
 
-    // Copy the selected text to clipboard
-    navigator.clipboard.writeText(input.value).then(() => {
-      // Update button text to show "Copié !"
-      this.innerHTML =
-        "<i class='bxr  bxs-copy' style='color:#838383'></i> Copié !";
-
-      // Reset button text back to "Copier" after 1.5 seconds, keeps the icon
-      setTimeout(() => {
+      // Copy the selected text to clipboard
+      navigator.clipboard.writeText(input.value).then(() => {
+        // Update button text to show "Copié !"
         this.innerHTML =
-          "<i class='bxr  bxs-copy' style='color:#838383'></i> Copier";
-      }, 1500);
+          "<i class='bxr  bxs-copy' style='color:#838383'></i> Copié !";
+
+        // Reset button text back to "Copier" after 1.5 seconds, keeps the icon
+        setTimeout(() => {
+          this.innerHTML =
+            "<i class='bxr  bxs-copy' style='color:#838383'></i> Copier";
+        }, 1500);
+      });
     });
-  });
+  }
 });

@@ -17,7 +17,7 @@ env.config();
 
 app.use(
   session({
-    secret: process.env.SESSION_SECRET || "default_dev_secret",
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
     cookie: { secure: false, maxAge: 7 * 24 * 60 * 60 * 1000 },
@@ -37,10 +37,30 @@ app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public")); // Serve static files
 
+// Function to get existing temp user OR create new one
+async function getOrCreateTempUser(ip) {
+  // First, try to find existing user with this IP
+  let result = await pool.query("SELECT id FROM temp_users WHERE ip = $1", [
+    ip,
+  ]);
+
+  if (result.rows.length === 0) {
+    // If no user exists, create a new one
+    result = await pool.query(
+      "INSERT INTO temp_users (ip) VALUES ($1) RETURNING id",
+      [ip]
+    );
+  }
+
+  return result.rows[0].id; // Return the user ID
+}
+
 app.get("/", async (req, res) => {
   // Home page - render with session data
-
   // Set the isQrCodeCreated to false
+
+  getOrCreateTempUser(req.ip);
+
   if (req.session.isQrCodeCreated === undefined) {
     req.session.isQrCodeCreated = false;
   }
@@ -91,18 +111,60 @@ app.get("/register", (req, res) => {
   res.render("register");
 });
 
-app.post("/create-url", (req, res) => {
+app.post("/create-url", async (req, res) => {
   if (req.session.isURLCreated === true) {
     res.redirect("/");
   } else {
     const oldUrl = req.body.originalUrl;
     const newUrl = nanoid(6); // Generate 6-char random ID
 
+    // If the user type the route, we make sure that he is in temp_users DB
+    const tempUserId = await getOrCreateTempUser(req.ip);
+    try {
+      await pool.query(
+        "INSERT INTO temp_links (temp_user_id, short_code, original_url) VALUES ($1, $2, $3)",
+        [tempUserId, newUrl, oldUrl]
+      );
+    } catch (error) {
+      console.log("Error inserting temp links in DB :", error);
+    }
+
     req.session.oldUrl = oldUrl;
     req.session.newUrl = newUrl;
     req.session.activeMode = "url";
     req.session.isURLCreated = true;
     res.redirect("/");
+  }
+});
+
+app.post("/create-qr-code", async (req, res) => {
+  if (req.session.isQrCodeCreated === true) {
+    res.redirect("/");
+  } else {
+    try {
+      const urlSent = req.body.urlToQR;
+      const dataURL = await QRCode.toDataURL(urlSent);
+      const tempUserId = await getOrCreateTempUser(req.ip);
+
+      // Insert the QR code datas in DB
+      try {
+        await pool.query(
+          "INSERT INTO temp_qrcode (temp_user_id, qr_url, qr_data_url) VALUES ($1, $2, $3)",
+          [tempUserId, urlSent, dataURL]
+        );
+      } catch (error) {
+        console.log("Error in inserting temp qr code in DB :", error);
+      }
+
+      // Store QR code data in session
+      req.session.qrCodeDataURL = dataURL;
+      req.session.activeMode = "qr";
+      req.session.isQrCodeCreated = true;
+      res.redirect("/");
+    } catch (error) {
+      console.log("Error creating QR code :", error);
+      res.redirect("/");
+    }
   }
 });
 
@@ -129,32 +191,15 @@ app.post("/download-qr-code", async (req, res) => {
   }
 });
 
-app.post("/create-qr-code", async (req, res) => {
-  if (req.session.isQrCodeCreated === true) {
-    res.redirect("/");
-  } else {
-    try {
-      const dataURL = await QRCode.toDataURL(req.body.urlToQR);
-
-      // Store QR code data in session
-      req.session.qrCodeDataURL = dataURL;
-      req.session.activeMode = "qr";
-      req.session.isQrCodeCreated = true;
-      res.redirect("/");
-    } catch (error) {
-      console.log("Error creating QR code :", error);
-      res.redirect("/");
-    }
-  }
-});
-
 app.get("/:id", async (req, res) => {
   const shortUrlRequested = req.params.id;
-  const newUrl = req.session.newUrl;
-  const oldUrl = req.session.oldUrl;
+  const newUrl = await pool.query(
+    "SELECT * FROM temp_links WHERE short_code=$1",
+    [shortUrlRequested]
+  );
 
-  if (shortUrlRequested === newUrl) {
-    res.redirect(oldUrl);
+  if (shortUrlRequested === newUrl.rows[0].short_code) {
+    res.redirect(newUrl.rows[0].original_url);
   } else {
     res.status(404).send("Short URL not found");
   }

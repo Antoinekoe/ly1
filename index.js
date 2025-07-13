@@ -2,10 +2,10 @@ import express from "express";
 import bodyParser from "body-parser";
 import pg from "pg";
 import bcrypt from "bcrypt";
+import session from "express-session";
 import passport from "passport";
 import { Strategy } from "passport-local";
 import { Strategy as GoogleStrategy } from "passport-google-oauth2";
-import session from "express-session";
 import env from "dotenv";
 import { nanoid } from "nanoid";
 import QRCode from "qrcode";
@@ -23,6 +23,9 @@ app.use(
     cookie: { secure: false, maxAge: 7 * 24 * 60 * 60 * 1000 },
   })
 );
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 const pool = new pg.Pool({
   user: process.env.USER,
@@ -107,8 +110,49 @@ app.get("/login", (req, res) => {
   res.render("login");
 });
 
-app.get("/register", (req, res) => {
-  res.render("register");
+app.get("/admin", (req, res) => {
+  res.render("admin.ejs");
+});
+
+app.get("/signup", (req, res) => {
+  res.render("signup.ejs");
+});
+
+app.post("/signup", async (req, res) => {
+  const email = req.body.email;
+  const password = req.body.password;
+
+  try {
+    const result = await pool.query("SELECT * FROM users WHERE email=$1", [
+      email,
+    ]);
+
+    if (result.rows.length > 0) {
+      console.log("User already exists !");
+      res.render("signup.ejs");
+    } else {
+      bcrypt.hash(password, saltRounds, async (err, hash) => {
+        if (err) {
+          console.log("Error in Hashing PW : ", err);
+        } else {
+          try {
+            const result = await pool.query(
+              "INSERT INTO users (email, password_hash) VALUES ($1, $2) RETURNING *",
+              [email, hash]
+            );
+            const user = result.rows[0].id;
+            req.login(user, (err) => {
+              res.redirect("/admin");
+            });
+          } catch (error) {
+            console.log("Error in adding the user in DB :", error);
+          }
+        }
+      });
+    }
+  } catch (error) {
+    console.log("Error getting data from DB :", error);
+  }
 });
 
 app.post("/create-url", async (req, res) => {
@@ -203,6 +247,22 @@ app.get("/:id", async (req, res) => {
   } else {
     res.status(404).send("Short URL not found");
   }
+});
+
+// passport.use(new Strategy(async function (username, password, cb) {
+//   try {
+
+//   } catch (error) {
+
+//   }
+// }));
+
+// Session serialization
+passport.serializeUser((user, cb) => {
+  cb(null, user);
+});
+passport.deserializeUser((user, cb) => {
+  cb(null, user);
 });
 
 app.listen(port, (req, res) => {

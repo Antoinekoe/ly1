@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/css/output.css">
+  <title>LY1 - Interface Admin</title>
+</head>
+
+<body class="flex flex-col mx-10 min-h-screen">
+  <header class="flex justify-center items-center md:justify-start items-start">
+    <nav class="flex py-10">
+      <a href="/">
+        <h1 class="text-3xl font-light tracking-tight">LY1</h1>
+      </a>
+    </nav>
+  </header>
+  <main class="flex-1 flex flex-col items-center justify-center">
+    <div class="w-full max-w-4xl grid grid-cols-1 md:grid-cols-3 gap-8 mt-8 mb-8">
+      <!-- Create Section -->
+      <div class="bg-white rounded-2xl shadow-sm p-6 flex flex-col items-center border border-gray-200">
+        <h2 class="text-xl font-semibold mb-4">Créer un lien ou QR</h2>
+        <form action="/admin/create" method="POST" class="w-full flex flex-col gap-3">
+          <label for="type" class="text-left text-sm font-medium">Type</label>
+          <select id="type" name="type" class="rounded-md border border-gray-200 px-3 py-2 text-sm">
+            <option value="link">Lien</option>
+            <option value="qr">QR Code</option>
+          </select>
+          <label for="value" class="text-left text-sm font-medium">URL ou texte</label>
+          <input id="value" name="value" type="text" required class="rounded-md border border-gray-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm">
+          <button type="submit" class="mt-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md py-2 transition hover:cursor-pointer">Créer</button>
+        </form>
+      </div>
+      <!-- Delete Section -->
+      <div class="bg-white rounded-2xl shadow-sm p-6 flex flex-col items-center border border-gray-200">
+        <h2 class="text-xl font-semibold mb-4">Supprimer un lien ou QR</h2>
+        <form action="/admin/delete" method="POST" class="w-full flex flex-col gap-3">
+          <label for="delete-type" class="text-left text-sm font-medium">Type</label>
+          <select id="delete-type" name="type" class="rounded-md border border-gray-200 px-3 py-2 text-sm">
+            <option value="link">Lien</option>
+            <option value="qr">QR Code</option>
+          </select>
+          <label for="delete-id" class="text-left text-sm font-medium">ID ou code</label>
+          <input id="delete-id" name="id" type="text" required class="rounded-md border border-gray-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm">
+          <button type="submit" class="mt-2 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-md py-2 transition hover:cursor-pointer">Supprimer</button>
+        </form>
+      </div>
+      <!-- Statistics Section -->
+      <div class="bg-white rounded-2xl shadow-sm p-6 flex flex-col items-center border border-gray-200">
+        <h2 class="text-xl font-semibold mb-4">Statistiques</h2>
+        <form action="/admin/stats" method="GET" class="w-full flex flex-col gap-3 mb-4">
+          <label for="stats-type" class="text-left text-sm font-medium">Type</label>
+          <select id="stats-type" name="type" class="rounded-md border border-gray-200 px-3 py-2 text-sm">
+            <option value="link">Lien</option>
+            <option value="qr">QR Code</option>
+          </select>
+          <label for="stats-id" class="text-left text-sm font-medium">ID ou code (optionnel)</label>
+          <input id="stats-id" name="id" type="text" class="rounded-md border border-gray-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm">
+          <button type="submit" class="mt-2 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded-md py-2 transition hover:cursor-pointer">Voir</button>
+        </form>
+        <!-- Placeholder for stats results -->
+        <div id="stats-results" class="w-full text-left text-sm text-gray-700"></div>
+      </div>
+    </div>
+  </main>
+  <%- include('partials/footer') %>
+</body>
+
+</html>

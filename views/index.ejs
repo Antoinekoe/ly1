@@ -13,11 +13,11 @@
   <header>
     <nav class="flex py-10 justify-between">
       <a href="/">
-        <h1>LY1</h1>
+        <h1 class="text-3xl font-light tracking-tight">LY1</h1>
       </a>
 
       <!-- Hamburger menu icon when not open -->
-      <div class="flex flex-col justify-between md:hidden" id="hamburger-menu-not-open">
+      <div class="flex flex-col justify-between h-7 md:hidden" id="hamburger-menu-not-open">
         <span class="bg-black h-0.5 w-8 rounded-2xl">
         </span>
         <span class="bg-black h-0.5 w-8 rounded-2xl">
@@ -35,7 +35,7 @@
       <!-- Desktop menu -->
       <div class="hidden md:flex justify-center items-center gap-4 " id="desktop-menu">
         <a href="/login">Connexion</a>
-        <a href="/signup" class="button-blue-light transition-shadow hover:shadow-lg">Créer un compte</a>
+        <a href="/signup" class="button-blue-light transition-shadow hover:drop-shadow-sm">Créer un compte</a>
       </div>
     </nav>
     <!-- Menu that shows when open -->
@@ -130,20 +130,11 @@
 
     </section>
     <div class="flex justify-center items-center">
-      <a href="/register" class="button-blue my-9 button-blue-light">Je crée mon compte</a>
+      <a href="/signup" class="button-blue my-9 button-blue-light hover:drop-shadow-sm">Je crée mon compte</a>
     </div>
   </main>
-
-  <footer class="flex gap-4 justify-center text-center items- space-x-2 border-t-1 border-gray-300 left-0 right-0 w-full text-sm py-5 text-xs">
-    <a href="/">LY1</a>
-    <a href="/">Tous droits réservés</a>
-    <a href="/">Contact</a>
-    <a href="/">Mentions légales</a>
-  </footer>
   <script>
     var isURLCreated = <%= isURLCreated %>;
   </script>
-  <script src="js/script.js"></script>
-</body>
 
-</html>
+  <%- include('partials/footer') %>

@@ -3,37 +3,43 @@ document.addEventListener("DOMContentLoaded", function () {
   // ===== MOBILE HAMBURGER MENU =====
 
   // Show hamburger menu when closed icon is clicked (mobile only)
-  document
-    .getElementById("hamburger-menu-not-open")
-    .addEventListener("click", function () {
-      // Hide the closed hamburger icon
-      document
-        .getElementById("hamburger-menu-not-open")
-        .classList.add("hidden");
-      // Show the open hamburger icon (X)
-      document.getElementById("hamburger-menu-open").classList.remove("hidden");
-      // Show the mobile menu
-      document.getElementById("hidden-menu").classList.remove("hidden");
-    });
+  if (document.getElementById("hamburger-menu-not-open")) {
+    document
+      .getElementById("hamburger-menu-not-open")
+      .addEventListener("click", function () {
+        // Hide the closed hamburger icon
+        document
+          .getElementById("hamburger-menu-not-open")
+          .classList.add("hidden");
+        // Show the open hamburger icon (X)
+        document
+          .getElementById("hamburger-menu-open")
+          .classList.remove("hidden");
+        // Show the mobile menu
+        document.getElementById("hidden-menu").classList.remove("hidden");
+      });
+  }
 
   // Hide hamburger menu when open icon is clicked (mobile only)
-  document
-    .getElementById("hamburger-menu-open")
-    .addEventListener("click", function () {
-      // Show the closed hamburger icon
-      document
-        .getElementById("hamburger-menu-not-open")
-        .classList.remove("hidden");
-      // Hide the open hamburger icon (X)
-      document.getElementById("hamburger-menu-open").classList.add("hidden");
-      // Hide the mobile menu
-      document.getElementById("hidden-menu").classList.add("hidden");
-    });
+  if (document.getElementById("hamburger-menu-open")) {
+    document
+      .getElementById("hamburger-menu-open")
+      .addEventListener("click", function () {
+        // Show the closed hamburger icon
+        document
+          .getElementById("hamburger-menu-not-open")
+          .classList.remove("hidden");
+        // Hide the open hamburger icon (X)
+        document.getElementById("hamburger-menu-open").classList.add("hidden");
+        // Hide the mobile menu
+        document.getElementById("hidden-menu").classList.add("hidden");
+      });
+  }
 
   // ===== COPY TO CLIPBOARD FUNCTIONALITY =====
 
   // Copy short URL to clipboard when "Copier" button is clicked
-  if (isURLCreated) {
+  if (typeof isURLCreated !== "undefined" && isURLCreated) {
     document.getElementById("copy").addEventListener("click", function () {
       // Get the input field containing the short URL
       var input = document.getElementById("shorturl");

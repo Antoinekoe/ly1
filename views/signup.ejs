@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="/css/output.css">
-  <title>LY1 - Connexion</title>
+  <title>LY1 - Créez votre compte</title>
 </head>
 
 <body class="flex flex-col mx-10 min-h-screen">
@@ -18,8 +18,8 @@
   </header>
   <main class="flex-1 flex flex-col items-center justify-center">
     <div class="bg-white rounded-2xl shadow-sm p-8 w-full max-w-md mt-2 mb-8 flex flex-col items-center text-center border border-gray-200">
-      <h2 class="text-2xl font-semibold text-xl mb-2">Connexion</h2>
-      <p class="text-gray-500 text-xs mb-6">Pas encore de compte ? <a href="/signup" class="underline hover:text-blue-600">Créez-en un</a></p>
+      <h2 class="text-2xl font-semibold text-xl mb-2">Créez votre compte</h2>
+      <p class="text-gray-500 text-xs mb-6">Vous avez déjà un compte ? <a href="/login" class="underline hover:text-blue-600">Connectez-vous</a></p>
       <button class="flex items-center justify-center w-full border px-5 border-gray-200 rounded-md py-2 mb-4 text-xs text-gray-700 font-medium hover:cursor-pointer bg-white hover:bg-gray-100 transition">
         <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" class="w-5 h-5 mr-2"> Continuer avec Google
       </button>
@@ -28,16 +28,13 @@
         <span class="mx-2 text-gray-400 text-xs">OU</span>
         <div class="flex-1 border-t border-gray-200"></div>
       </div>
-      <form action="/login" method="POST" class="w-full flex flex-col gap-3">
+      <form action="/signup" method="POST" class="w-full flex flex-col gap-3">
         <label for="email" class="text-left text-sm font-medium">E-mail</label>
         <input id="email" name="email" type="email" required class="rounded-md border border-gray-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm">
         <label for="password" class="text-left text-sm font-medium">Mot de passe</label>
         <input id="password" name="password" type="password" required class="rounded-md border border-gray-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm">
-        <button type="submit" class="mt-4 bg-blue-600 hover:bg-blue-600 text-white font-semibold rounded-md py-2 transition hover:cursor-pointer">Se connecter</button>
+        <button type="submit" class="mt-4 bg-blue-600 hover:bg-blue-600 text-white font-semibold rounded-md py-2 transition hover:cursor-pointer">Créer mon compte</button>
       </form>
     </div>
   </main>
   <%- include('partials/footer') %>
-</body>
-
-</html>

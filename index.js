@@ -132,10 +132,20 @@ app.post(
 
 app.get("/admin", (req, res) => {
   if (req.isAuthenticated()) {
+    req.session.isRegistered = true;
     res.render("admin.ejs");
   } else {
     res.render("login.ejs");
   }
+});
+
+app.get("/logout", (req, res) => {
+  req.logout(function (err) {
+    if (err) {
+      return next(err);
+    }
+    res.redirect("/");
+  });
 });
 
 app.get("/signup", (req, res) => {

@@ -9,61 +9,187 @@
 </head>
 
 <body class="flex flex-col mx-10 min-h-screen">
-  <header class="flex justify-center items-center md:justify-start items-start">
-    <nav class="flex py-10">
+  <header>
+    <nav class="flex justify-between py-10">
       <a href="/">
         <h1 class="text-3xl font-light tracking-tight">LY1</h1>
       </a>
+      <div class="hidden md:flex justify-center items-center gap-4 " id="desktop-menu">
+        <a href="/logout" class="button-blue-light transition-shadow hover:drop-shadow-sm">Déconnexion</a>
+      </div>
     </nav>
   </header>
-  <main class="flex-1 flex flex-col items-center justify-center">
-    <div class="w-full max-w-4xl grid grid-cols-1 md:grid-cols-3 gap-8 mt-8 mb-8">
-      <!-- Create Section -->
-      <div class="bg-white rounded-2xl shadow-sm p-6 flex flex-col items-center border border-gray-200">
-        <h2 class="text-xl font-semibold mb-4">Créer un lien ou QR</h2>
-        <form action="/admin/create" method="POST" class="w-full flex flex-col gap-3">
-          <label for="type" class="text-left text-sm font-medium">Type</label>
-          <select id="type" name="type" class="rounded-md border border-gray-200 px-3 py-2 text-sm">
-            <option value="link">Lien</option>
+
+  <main class="flex-1">
+    <!-- Create Section -->
+    <section class="flex flex-col justify-center items-center text-center font-bold py-12">
+      <h2>Gérer vos liens et QR codes</h2>
+    </section>
+
+    <!-- Create Form -->
+    <section class="flex flex-col justify-center items-center text-center">
+      <div class="py-3 bg-blue-600 rounded-2xl w-full md:w-[35rem] mb-8">
+        <form action="/admin/create" method="POST" class="flex space-x-2 px-2">
+          <select name="type" class="bg-white rounded-[0.5rem] px-2 py-2 text-sm focus:outline-none">
+            <option value="link">Lien raccourci</option>
             <option value="qr">QR Code</option>
           </select>
-          <label for="value" class="text-left text-sm font-medium">URL ou texte</label>
-          <input id="value" name="value" type="text" required class="rounded-md border border-gray-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm">
-          <button type="submit" class="mt-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md py-2 transition hover:cursor-pointer">Créer</button>
+          <input type="text" name="value" placeholder="https://www.google.com" class="bg-white rounded-[0.5rem] px-2 py-2 w-full text-sm focus:outline-none" required>
+          <button type="submit" class="cursor-pointer bg-white rounded-[0.5rem] px-2 py-2 font-semibold w-43">Créer</button>
         </form>
       </div>
-      <!-- Delete Section -->
-      <div class="bg-white rounded-2xl shadow-sm p-6 flex flex-col items-center border border-gray-200">
-        <h2 class="text-xl font-semibold mb-4">Supprimer un lien ou QR</h2>
-        <form action="/admin/delete" method="POST" class="w-full flex flex-col gap-3">
-          <label for="delete-type" class="text-left text-sm font-medium">Type</label>
-          <select id="delete-type" name="type" class="rounded-md border border-gray-200 px-3 py-2 text-sm">
-            <option value="link">Lien</option>
-            <option value="qr">QR Code</option>
-          </select>
-          <label for="delete-id" class="text-left text-sm font-medium">ID ou code</label>
-          <input id="delete-id" name="id" type="text" required class="rounded-md border border-gray-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm">
-          <button type="submit" class="mt-2 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-md py-2 transition hover:cursor-pointer">Supprimer</button>
-        </form>
+    </section>
+
+
+
+    <!-- Links and QR Codes Side by Side -->
+    <section class="flex flex-col justify-center items-center text-center font-bold my-11">
+      <h2>Vos liens et QR codes</h2>
+    </section>
+
+    <section class="flex flex-col justify-center items-center mb-16">
+      <div class="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Links List -->
+        <div class="bg-white rounded-2xl shadow-sm p-6 border border-gray-200">
+          <h3 class="text-lg font-semibold mb-4 text-center">Liens raccourcis</h3>
+          <div class="space-y-4">
+            <!-- Link Item -->
+            <div class="border-b border-gray-100 pb-4">
+              <div class="flex justify-between items-center mb-2">
+                <span class="font-mono text-sm bg-gray-100 px-2 py-1 rounded">abc123</span>
+                <span class="text-sm text-gray-500">156 clics</span>
+              </div>
+              <p class="text-sm text-gray-600 mb-2 truncate">https://www.google.com/search?q=very+long+url</p>
+              <div class="flex gap-2">
+                <button class="text-blue-600 hover:text-blue-800 text-sm">Copier</button>
+                <button class="text-red-600 hover:text-red-800 text-sm">Supprimer</button>
+              </div>
+            </div>
+
+            <!-- Link Item -->
+            <div class="border-b border-gray-100 pb-4">
+              <div class="flex justify-between items-center mb-2">
+                <span class="font-mono text-sm bg-gray-100 px-2 py-1 rounded">def456</span>
+                <span class="text-sm text-gray-500">89 clics</span>
+              </div>
+              <p class="text-sm text-gray-600 mb-2 truncate">https://github.com/username/repository</p>
+              <div class="flex gap-2">
+                <button class="text-blue-600 hover:text-blue-800 text-sm">Copier</button>
+                <button class="text-red-600 hover:text-red-800 text-sm">Supprimer</button>
+              </div>
+            </div>
+
+            <!-- Link Item -->
+            <div class="pb-4">
+              <div class="flex justify-between items-center mb-2">
+                <span class="font-mono text-sm bg-gray-100 px-2 py-1 rounded">ghi789</span>
+                <span class="text-sm text-gray-500">0 clics</span>
+              </div>
+              <p class="text-sm text-gray-600 mb-2 truncate">https://stackoverflow.com/questions/123456</p>
+              <div class="flex gap-2">
+                <button class="text-blue-600 hover:text-blue-800 text-sm">Copier</button>
+                <button class="text-red-600 hover:text-red-800 text-sm">Supprimer</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- QR Codes List -->
+        <div class="bg-white rounded-2xl shadow-sm p-6 border border-gray-200">
+          <h3 class="text-lg font-semibold mb-4 text-center">QR codes</h3>
+          <div class="space-y-4">
+            <!-- QR Item -->
+            <div class="border-b border-gray-100 pb-4">
+              <div class="flex justify-between items-center mb-2">
+                <span class="font-medium text-sm">QR Code #1</span>
+                <span class="text-sm text-gray-500">12 téléchargements</span>
+              </div>
+              <p class="text-sm text-gray-600 mb-2 truncate">https://www.example.com/very-long-url</p>
+              <div class="bg-gray-100 rounded-lg p-3 mb-2 flex justify-center">
+                <div class="w-16 h-16 bg-white rounded border border-gray-300 flex items-center justify-center">
+                  <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V6a1 1 0 00-1-1H5a1 1 0 00-1 1v1a1 1 0 001 1zm12 0h2a1 1 0 001-1V6a1 1 0 00-1-1h-2a1 1 0 00-1 1v1a1 1 0 001 1zM5 20h2a1 1 0 001-1v-1a1 1 0 00-1-1H5a1 1 0 00-1 1v1a1 1 0 001 1z"></path>
+                  </svg>
+                </div>
+              </div>
+              <div class="flex gap-2">
+                <button class="text-blue-600 hover:text-blue-800 text-sm">Télécharger</button>
+                <button class="text-red-600 hover:text-red-800 text-sm">Supprimer</button>
+              </div>
+            </div>
+
+            <!-- QR Item -->
+            <div class="border-b border-gray-100 pb-4">
+              <div class="flex justify-between items-center mb-2">
+                <span class="font-medium text-sm">QR Code #2</span>
+                <span class="text-sm text-gray-500">8 téléchargements</span>
+              </div>
+              <p class="text-sm text-gray-600 mb-2 truncate">https://github.com/username/repo</p>
+              <div class="bg-gray-100 rounded-lg p-3 mb-2 flex justify-center">
+                <div class="w-16 h-16 bg-white rounded border border-gray-300 flex items-center justify-center">
+                  <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V6a1 1 0 00-1-1H5a1 1 0 00-1 1v1a1 1 0 001 1zm12 0h2a1 1 0 001-1V6a1 1 0 00-1-1h-2a1 1 0 00-1 1v1a1 1 0 001 1zM5 20h2a1 1 0 001-1v-1a1 1 0 00-1-1H5a1 1 0 00-1 1v1a1 1 0 001 1z"></path>
+                  </svg>
+                </div>
+              </div>
+              <div class="flex gap-2">
+                <button class="text-blue-600 hover:text-blue-800 text-sm">Télécharger</button>
+                <button class="text-red-600 hover:text-red-800 text-sm">Supprimer</button>
+              </div>
+            </div>
+
+            <!-- QR Item -->
+            <div class="pb-4">
+              <div class="flex justify-between items-center mb-2">
+                <span class="font-medium text-sm">QR Code #3</span>
+                <span class="text-sm text-gray-500">0 téléchargements</span>
+              </div>
+              <p class="text-sm text-gray-600 mb-2 truncate">https://stackoverflow.com/questions/123</p>
+              <div class="bg-gray-100 rounded-lg p-3 mb-2 flex justify-center">
+                <div class="w-16 h-16 bg-white rounded border border-gray-300 flex items-center justify-center">
+                  <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V6a1 1 0 00-1-1H5a1 1 0 00-1 1v1a1 1 0 001 1zm12 0h2a1 1 0 001-1V6a1 1 0 00-1-1h-2a1 1 0 00-1 1v1a1 1 0 001 1zM5 20h2a1 1 0 001-1v-1a1 1 0 00-1-1H5a1 1 0 00-1 1v1a1 1 0 001 1z"></path>
+                  </svg>
+                </div>
+              </div>
+              <div class="flex gap-2">
+                <button class="text-blue-600 hover:text-blue-800 text-sm">Télécharger</button>
+                <button class="text-red-600 hover:text-red-800 text-sm">Supprimer</button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      <!-- Statistics Section -->
-      <div class="bg-white rounded-2xl shadow-sm p-6 flex flex-col items-center border border-gray-200">
-        <h2 class="text-xl font-semibold mb-4">Statistiques</h2>
-        <form action="/admin/stats" method="GET" class="w-full flex flex-col gap-3 mb-4">
-          <label for="stats-type" class="text-left text-sm font-medium">Type</label>
-          <select id="stats-type" name="type" class="rounded-md border border-gray-200 px-3 py-2 text-sm">
-            <option value="link">Lien</option>
-            <option value="qr">QR Code</option>
-          </select>
-          <label for="stats-id" class="text-left text-sm font-medium">ID ou code (optionnel)</label>
-          <input id="stats-id" name="id" type="text" class="rounded-md border border-gray-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm">
-          <button type="submit" class="mt-2 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded-md py-2 transition hover:cursor-pointer">Voir</button>
-        </form>
-        <!-- Placeholder for stats results -->
-        <div id="stats-results" class="w-full text-left text-sm text-gray-700"></div>
+    </section>
+    <!-- Statistics -->
+    <section class="flex flex-col justify-center items-center text-center font-bold my-11">
+      <h2>Vos statistiques</h2>
+    </section>
+
+    <section class="flex flex-col justify-center items-center">
+      <div class="bg-white rounded-2xl shadow-sm p-6 w-full md:w-[35rem] mb-8 border border-gray-200">
+        <div class="grid grid-cols-2 gap-4 text-center">
+          <div>
+            <p class="text-2xl font-bold text-blue-600">24</p>
+            <p class="text-sm text-gray-600">Liens raccourcis</p>
+          </div>
+          <div>
+            <p class="text-2xl font-bold text-green-600">12</p>
+            <p class="text-sm text-gray-600">QR Codes</p>
+          </div>
+          <div>
+            <p class="text-2xl font-bold text-purple-600">1,247</p>
+            <p class="text-sm text-gray-600">Clics totaux</p>
+          </div>
+          <div>
+            <p class="text-2xl font-bold text-orange-600">89</p>
+            <p class="text-sm text-gray-600">Téléchargements</p>
+          </div>
+        </div>
       </div>
-    </div>
+    </section>
   </main>
+
   <%- include('partials/footer') %>
 </body>
 

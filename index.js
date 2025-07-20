@@ -216,6 +216,49 @@ app.get(
   })
 );
 
+app.post("/admin/create", async (req, res) => {
+  console.log(req.body);
+  const userId = req.session.passport.user.id;
+  const type = req.body.type;
+  const oldUrl = req.body.value;
+
+  if (type === "link") {
+    const newUrl = nanoid(6); // Generate 6-char random ID
+    try {
+      await pool.query(
+        "INSERT INTO links (user_id, short_code, original_url) VALUES ($1, $2, $3)",
+        [userId, newUrl, oldUrl]
+      );
+    } catch (error) {
+      console.log("Error inserting temp links in DB :", error);
+    }
+    res.redirect("/admin");
+  } else {
+    if (req.session.isQrCodeCreated === true) {
+      res.redirect("/");
+    } else {
+      try {
+        const dataURL = await QRCode.toDataURL(oldUrl);
+
+        // Insert the QR code datas in DB
+        try {
+          await pool.query(
+            "INSERT INTO qr_code (user_id, original_url, qr_data_url) VALUES ($1, $2, $3)",
+            [userId, oldUrl, dataURL]
+          );
+        } catch (error) {
+          console.log("Error in inserting QR code in DB :", error);
+        }
+
+        res.redirect("/admin");
+      } catch (error) {
+        console.log("Error creating QR code :", error);
+        res.redirect("/");
+      }
+    }
+  }
+});
+
 app.get("/auth/google/admin", (req, res, next) => {
   passport.authenticate("google", (err, user, info) => {
     if (err) {
@@ -231,9 +274,7 @@ app.get("/auth/google/admin", (req, res, next) => {
         return next(err);
       }
 
-      // ✅ Set your session variable here
       req.session.isRegistered = true;
-
       return res.redirect("/admin");
     });
   })(req, res, next);
@@ -323,7 +364,7 @@ app.get("/:id", async (req, res) => {
   const shortUrlRequested = req.params.id;
   console.log("ID route being called with id :", req.params.id);
   const newUrl = await pool.query(
-    "SELECT * FROM temp_links WHERE short_code=$1",
+    "SELECT COALESCE(temp_links.short_code, links.short_code) as short_code, COALESCE(temp_links.original_url, links.original_url) as original_url FROM temp_links FULL OUTER JOIN links ON temp_links.short_code = links.short_code WHERE temp_links.short_code = $1 OR links.short_code = $1",
     [shortUrlRequested]
   );
   console.log(newUrl.rows[0]);

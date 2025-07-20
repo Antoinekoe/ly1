@@ -71,6 +71,9 @@ app.get("/", async (req, res) => {
     console.log("Error in getOrCreateTempUser:", error);
   }
 
+  if (req.session.isRegistered === undefined) {
+    req.session.isRegistered = false;
+  }
   if (req.session.isQrCodeCreated === undefined) {
     req.session.isQrCodeCreated = false;
   }
@@ -88,6 +91,7 @@ app.get("/", async (req, res) => {
     qrCodeDataURL: req.session.qrCodeDataURL,
     isQrCodeCreated: req.session.isQrCodeCreated,
     isURLCreated: req.session.isURLCreated,
+    isRegistered: req.session.isRegistered,
   });
 });
 
@@ -116,14 +120,15 @@ app.get("/switch-to-qr", (req, res) => {
 app.get("/login", (req, res) => {
   res.render("login.ejs");
 });
+// req.session.isRegistered = true;
 
-app.post("/login", (req, res) => {
-  if (req.isAuthenticated()) {
-    res.render("admin.ejs");
-  } else {
-    res.render("login.ejs");
-  }
-});
+app.post(
+  "/login",
+  passport.authenticate("local", {
+    successRedirect: "/admin",
+    failureRedirect: "/login",
+  })
+);
 
 app.get("/admin", (req, res) => {
   if (req.isAuthenticated()) {
@@ -285,34 +290,38 @@ app.get("/:id", async (req, res) => {
 
 passport.use(
   "local",
-  new Strategy(async function verify(username, password, cb) {
-    try {
-      const result = await pool.query(
-        "SELECT * FROM users WHERE email=$1 AND google_id IS NULL",
-        [username]
-      );
-      if (result.rows.length > 0) {
-        const user = result.rows[0];
-        const storedHashedPassword = user.password_hash;
-        bcrypt.compare(password, storedHashedPassword, (err, valid) => {
-          if (err) {
-            console.error("Error comparing passwords:", err);
-            return cb(err);
-          } else {
-            if (valid) {
-              return cb(null, user);
+  new Strategy(
+    { usernameField: "email", passwordField: "password" },
+    async function verify(email, password, cb) {
+      try {
+        const result = await pool.query(
+          "SELECT * FROM users WHERE email=$1 AND google_id IS NULL",
+          [email]
+        );
+        if (result.rows.length > 0) {
+          const user = result.rows[0];
+          const storedHashedPassword = user.password_hash;
+          bcrypt.compare(password, storedHashedPassword, (err, valid) => {
+            if (err) {
+              console.error("Error comparing passwords:", err);
+              return cb(err);
             } else {
-              return cb(null, false);
+              if (valid) {
+                return cb(null, user);
+              } else {
+                return cb(null, false);
+              }
             }
-          }
-        });
-      } else {
-        return cb("User not found !");
+          });
+        } else {
+          return cb(null, false);
+        }
+      } catch (err) {
+        console.log(err);
+        return cb(err);
       }
-    } catch (err) {
-      console.log(err);
     }
-  })
+  )
 );
 
 passport.use(

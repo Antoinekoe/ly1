@@ -33,10 +33,16 @@
         </span>
       </div>
       <!-- Desktop menu -->
+      <% if (isRegistered === false) { %>
       <div class="hidden md:flex justify-center items-center gap-4 " id="desktop-menu">
         <a href="/login">Connexion</a>
         <a href="/signup" class="button-blue-light transition-shadow hover:drop-shadow-sm">Créer un compte</a>
       </div>
+      <% } else { %>
+      <div class="hidden md:flex justify-center items-center gap-4 " id="desktop-menu">
+        <a href="/admin">Accéder au tableau de bord</a>
+      </div>
+      <% } %>
     </nav>
     <!-- Menu that shows when open -->
     <div class="hidden absolute left-0 right-0 flex flex-col w-full h-full bg-white" id="hidden-menu">

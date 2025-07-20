@@ -63,7 +63,6 @@ app.get("/favicon.ico", (req, res) => {
 
 app.get("/", async (req, res) => {
   // Home page - render with session data
-  console.log("Home route get !");
   // Set the isQrCodeCreated to false
 
   try {
@@ -116,6 +115,14 @@ app.get("/switch-to-qr", (req, res) => {
 
 app.get("/login", (req, res) => {
   res.render("login.ejs");
+});
+
+app.post("/login", (req, res) => {
+  if (req.isAuthenticated()) {
+    res.render("admin.ejs");
+  } else {
+    res.render("login.ejs");
+  }
 });
 
 app.get("/admin", (req, res) => {
@@ -275,6 +282,38 @@ app.get("/:id", async (req, res) => {
     res.status(404).send("Short URL not found");
   }
 });
+
+passport.use(
+  "local",
+  new Strategy(async function verify(username, password, cb) {
+    try {
+      const result = await pool.query(
+        "SELECT * FROM users WHERE email=$1 AND google_id IS NULL",
+        [username]
+      );
+      if (result.rows.length > 0) {
+        const user = result.rows[0];
+        const storedHashedPassword = user.password_hash;
+        bcrypt.compare(password, storedHashedPassword, (err, valid) => {
+          if (err) {
+            console.error("Error comparing passwords:", err);
+            return cb(err);
+          } else {
+            if (valid) {
+              return cb(null, user);
+            } else {
+              return cb(null, false);
+            }
+          }
+        });
+      } else {
+        return cb("User not found !");
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  })
+);
 
 passport.use(
   "google",

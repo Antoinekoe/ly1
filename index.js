@@ -118,21 +118,38 @@ app.get("/switch-to-qr", (req, res) => {
 });
 
 app.get("/login", (req, res) => {
-  res.render("login.ejs");
+  res.render("login.ejs", {
+    loginError: req.session.loginError,
+  });
 });
-// req.session.isRegistered = true;
 
-app.post(
-  "/login",
-  passport.authenticate("local", {
-    successRedirect: "/admin",
-    failureRedirect: "/login",
-  })
-);
+app.post("/login", (req, res, next) => {
+  passport.authenticate("local", (err, user, info) => {
+    if (err) {
+      req.session.loginError = "Une erreur s'est produite";
+      return res.redirect("/login");
+    }
+
+    if (!user) {
+      req.session.loginError = "Email ou mot de passe incorrect";
+      return res.redirect("/login");
+    }
+
+    req.logIn(user, (err) => {
+      if (err) {
+        req.session.loginError = "Erreur lors de la connexion";
+        return res.redirect("/login");
+      }
+
+      req.session.isRegistered = true;
+      req.session.loginError = null;
+      return res.redirect("/admin");
+    });
+  })(req, res, next);
+});
 
 app.get("/admin", (req, res) => {
   if (req.isAuthenticated()) {
-    req.session.isRegistered = true;
     res.render("admin.ejs");
   } else {
     res.render("login.ejs");
@@ -162,7 +179,10 @@ app.post("/signup", async (req, res) => {
     ]);
 
     if (result.rows.length > 0) {
-      res.render("signup.ejs");
+      req.session.signupError = "Utilisateur déjà existant";
+      res.render("signup.ejs", {
+        signupError: req.session.signupError,
+      });
     } else {
       bcrypt.hash(password, saltRounds, async (err, hash) => {
         if (err) {
@@ -175,6 +195,7 @@ app.post("/signup", async (req, res) => {
             );
             const user = result.rows[0].id;
             req.login(user, (err) => {
+              req.session.isRegistered = true;
               res.redirect("/admin");
             });
           } catch (error) {
@@ -195,13 +216,28 @@ app.get(
   })
 );
 
-app.get(
-  "/auth/google/admin",
-  passport.authenticate("google", {
-    successRedirect: "/admin",
-    failureRedirect: "/login",
-  })
-);
+app.get("/auth/google/admin", (req, res, next) => {
+  passport.authenticate("google", (err, user, info) => {
+    if (err) {
+      return next(err);
+    }
+
+    if (!user) {
+      return res.redirect("/login");
+    }
+
+    req.logIn(user, (err) => {
+      if (err) {
+        return next(err);
+      }
+
+      // ✅ Set your session variable here
+      req.session.isRegistered = true;
+
+      return res.redirect("/admin");
+    });
+  })(req, res, next);
+});
 
 app.post("/create-url", async (req, res) => {
   if (req.session.isURLCreated === true) {

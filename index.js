@@ -363,12 +363,31 @@ app.post("/download-qr-code", async (req, res) => {
 app.get("/:id", async (req, res) => {
   const shortUrlRequested = req.params.id;
   console.log("ID route being called with id :", req.params.id);
+
   const newUrl = await pool.query(
-    "SELECT COALESCE(temp_links.short_code, links.short_code) as short_code, COALESCE(temp_links.original_url, links.original_url) as original_url FROM temp_links FULL OUTER JOIN links ON temp_links.short_code = links.short_code WHERE temp_links.short_code = $1 OR links.short_code = $1",
+    "SELECT COALESCE(temp_links.short_code, links.short_code) as short_code, COALESCE(temp_links.original_url, links.original_url) as original_url, COALESCE(temp_links.clicks, links.clicks) as clicks FROM temp_links FULL OUTER JOIN links ON temp_links.short_code = links.short_code WHERE temp_links.short_code = $1 OR links.short_code = $1",
     [shortUrlRequested]
   );
-  console.log(newUrl.rows[0]);
   if (shortUrlRequested === newUrl.rows[0].short_code) {
+    try {
+      const result = await pool.query(
+        "UPDATE temp_links SET clicks = clicks + 1 WHERE short_code = $1 RETURNING short_code, clicks",
+        [newUrl.rows[0].short_code]
+      );
+
+      if (result.rowCount === 0) {
+        try {
+          const result = await pool.query(
+            "UPDATE links SET clicks = clicks + 1 WHERE short_code = $1 RETURNING short_code, clicks",
+            [newUrl.rows[0].short_code]
+          );
+        } catch (error) {
+          console.log("Error in updating clicks in links table", error);
+        }
+      }
+    } catch (error) {
+      console.log("Error in updating clicks in temp_links table");
+    }
     res.redirect(newUrl.rows[0].original_url);
   } else {
     res.status(404).send("Short URL not found");

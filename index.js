@@ -54,15 +54,23 @@ async function getOrCreateTempUser(ip) {
       [ip]
     );
   }
-
   return result.rows[0].id; // Return the user ID
 }
 
+app.get("/favicon.ico", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "favicon.png"));
+});
+
 app.get("/", async (req, res) => {
   // Home page - render with session data
+  console.log("Home route get !");
   // Set the isQrCodeCreated to false
 
-  getOrCreateTempUser(req.ip);
+  try {
+    await getOrCreateTempUser(req.ip);
+  } catch (error) {
+    console.log("Error in getOrCreateTempUser:", error);
+  }
 
   if (req.session.isQrCodeCreated === undefined) {
     req.session.isQrCodeCreated = false;
@@ -107,11 +115,15 @@ app.get("/switch-to-qr", (req, res) => {
 });
 
 app.get("/login", (req, res) => {
-  res.render("login");
+  res.render("login.ejs");
 });
 
 app.get("/admin", (req, res) => {
-  res.render("admin.ejs");
+  if (req.isAuthenticated()) {
+    res.render("admin.ejs");
+  } else {
+    res.render("login.ejs");
+  }
 });
 
 app.get("/signup", (req, res) => {
@@ -128,7 +140,6 @@ app.post("/signup", async (req, res) => {
     ]);
 
     if (result.rows.length > 0) {
-      console.log("User already exists !");
       res.render("signup.ejs");
     } else {
       bcrypt.hash(password, saltRounds, async (err, hash) => {
@@ -154,6 +165,21 @@ app.post("/signup", async (req, res) => {
     console.log("Error getting data from DB :", error);
   }
 });
+
+app.get(
+  "/auth/google",
+  passport.authenticate("google", {
+    scope: ["profile", "email"],
+  })
+);
+
+app.get(
+  "/auth/google/admin",
+  passport.authenticate("google", {
+    successRedirect: "/admin",
+    failureRedirect: "/login",
+  })
+);
 
 app.post("/create-url", async (req, res) => {
   if (req.session.isURLCreated === true) {
@@ -237,11 +263,12 @@ app.post("/download-qr-code", async (req, res) => {
 
 app.get("/:id", async (req, res) => {
   const shortUrlRequested = req.params.id;
+  console.log("ID route being called with id :", req.params.id);
   const newUrl = await pool.query(
     "SELECT * FROM temp_links WHERE short_code=$1",
     [shortUrlRequested]
   );
-
+  console.log(newUrl.rows[0]);
   if (shortUrlRequested === newUrl.rows[0].short_code) {
     res.redirect(newUrl.rows[0].original_url);
   } else {
@@ -249,13 +276,33 @@ app.get("/:id", async (req, res) => {
   }
 });
 
-// passport.use(new Strategy(async function (username, password, cb) {
-//   try {
-
-//   } catch (error) {
-
-//   }
-// }));
+passport.use(
+  "google",
+  new GoogleStrategy(
+    {
+      clientID: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      callbackURL: "http://localhost:3000/auth/google/admin",
+      userProfileURL: "https://www.googleapis.com/oauth2/v3/userinfo",
+    },
+    async (accessToken, refreshToken, profile, cb) => {
+      const userEmail = profile.emails[0].value;
+      const userId = profile.id;
+      const result = await pool.query("SELECT * FROM users WHERE email = $1", [
+        userEmail,
+      ]);
+      if (result.rows.length === 0) {
+        const newUser = await pool.query(
+          "INSERT INTO users (email, password_hash, google_id) VALUES ($1, $2, $3) RETURNING *",
+          [userEmail, "google_id", userId]
+        );
+        return cb(null, newUser.rows[0]);
+      } else {
+        return cb(null, result.rows[0]);
+      }
+    }
+  )
+);
 
 // Session serialization
 passport.serializeUser((user, cb) => {

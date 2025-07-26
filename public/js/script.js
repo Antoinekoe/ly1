@@ -63,3 +63,22 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 });
+
+// Global function for copying to clipboard
+function copyToClipboard(text) {
+  navigator.clipboard
+    .writeText(text)
+    .then(function () {
+      input.select();
+    })
+    .catch(function (err) {
+      console.error("Erreur lors de la copie :", err);
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textArea);
+      alert("URL copiée dans le presse-papiers !");
+    });
+}

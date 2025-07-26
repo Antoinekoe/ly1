@@ -379,6 +379,20 @@ app.post("/create-qr-code", async (req, res) => {
   }
 });
 
+app.post("/delete-qr-code", async (req, res) => {
+  console.log(req.body.qr_code_id);
+
+  try {
+    const response = await pool.query("DELETE FROM qr_code WHERE id=$1", [
+      req.body.qr_code_id,
+    ]);
+    console.log("Supprimé !");
+  } catch (error) {
+    console.error(error);
+  }
+  res.redirect("/admin");
+});
+
 app.post("/download-qr-code", async (req, res) => {
   if (req.session.qrCodeDataURL) {
     try {

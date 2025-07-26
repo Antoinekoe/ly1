@@ -148,9 +148,51 @@ app.post("/login", (req, res, next) => {
   })(req, res, next);
 });
 
-app.get("/admin", (req, res) => {
+app.get("/admin", async (req, res) => {
   if (req.isAuthenticated()) {
-    res.render("admin.ejs");
+    let links = [];
+    let qr_codes = [];
+    let numberOfLinks;
+    let numberOfQRCodes;
+    let numberOfScans = 0;
+    let numberOfClicks = 0;
+
+    try {
+      const response = await pool.query(
+        "SELECT * FROM links WHERE user_id = $1",
+        [req.session.passport.user.id]
+      );
+      links = response.rows;
+      numberOfLinks = response.rows.length;
+      response.rows.forEach((row) => {
+        numberOfClicks = numberOfClicks + row.clicks;
+      });
+    } catch (error) {
+      console.log(error);
+    }
+
+    try {
+      const response = await pool.query(
+        "SELECT * FROM qr_code WHERE user_id = $1",
+        [req.session.passport.user.id]
+      );
+      qr_codes = response.rows;
+      numberOfQRCodes = response.rows.length;
+      response.rows.forEach((row) => {
+        numberOfScans = numberOfScans + row.scans;
+      });
+    } catch (error) {
+      console.log(error);
+    }
+
+    res.render("admin.ejs", {
+      qr_codes: qr_codes,
+      links: links,
+      numberOfLinks: numberOfLinks,
+      numberOfQRCodes: numberOfQRCodes,
+      numberOfClicks: numberOfClicks,
+      numberOfScans: numberOfScans,
+    });
   } else {
     res.render("login.ejs");
   }
@@ -360,6 +402,7 @@ app.post("/download-qr-code", async (req, res) => {
   }
 });
 
+// Main redirect route for short URLs
 app.get("/:id", async (req, res) => {
   const shortUrlRequested = req.params.id;
   console.log("ID route being called with id :", req.params.id);

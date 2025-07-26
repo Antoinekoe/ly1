@@ -54,82 +54,38 @@
           <h3 class="text-lg font-semibold mb-4 text-center">Liens raccourcis</h3>
           <div class="space-y-4">
             <!-- Link Item -->
+            <% links.forEach((link) => { %>
             <div class="border-b border-gray-100 pb-4">
               <div class="flex justify-between items-center mb-2">
-                <span class="font-mono text-sm bg-gray-100 px-2 py-1 rounded">abc123</span>
-                <span class="text-sm text-gray-500">156 clics</span>
+                <span class="font-mono text-sm bg-gray-100 px-2 py-1 rounded">https://localhost:3000/<%= link.short_code %></span>
+                <span class="text-sm text-gray-500"><%= link.clicks %></span>
               </div>
-              <p class="text-sm text-gray-600 mb-2 truncate">https://www.google.com/search?q=very+long+url</p>
+              <p class="text-sm text-gray-600 mb-2 truncate">Lien original : <%= link.original_url %></p>
               <div class="flex gap-2">
                 <button class="text-blue-600 hover:text-blue-800 text-sm">Copier</button>
                 <button class="text-red-600 hover:text-red-800 text-sm">Supprimer</button>
               </div>
             </div>
-
-            <!-- Link Item -->
-            <div class="border-b border-gray-100 pb-4">
-              <div class="flex justify-between items-center mb-2">
-                <span class="font-mono text-sm bg-gray-100 px-2 py-1 rounded">def456</span>
-                <span class="text-sm text-gray-500">89 clics</span>
-              </div>
-              <p class="text-sm text-gray-600 mb-2 truncate">https://github.com/username/repository</p>
-              <div class="flex gap-2">
-                <button class="text-blue-600 hover:text-blue-800 text-sm">Copier</button>
-                <button class="text-red-600 hover:text-red-800 text-sm">Supprimer</button>
-              </div>
-            </div>
-
-            <!-- Link Item -->
-            <div class="pb-4">
-              <div class="flex justify-between items-center mb-2">
-                <span class="font-mono text-sm bg-gray-100 px-2 py-1 rounded">ghi789</span>
-                <span class="text-sm text-gray-500">0 clics</span>
-              </div>
-              <p class="text-sm text-gray-600 mb-2 truncate">https://stackoverflow.com/questions/123456</p>
-              <div class="flex gap-2">
-                <button class="text-blue-600 hover:text-blue-800 text-sm">Copier</button>
-                <button class="text-red-600 hover:text-red-800 text-sm">Supprimer</button>
-              </div>
-            </div>
+            <% }); %>
           </div>
         </div>
 
         <!-- QR Codes List -->
+
         <div class="bg-white rounded-2xl shadow-sm p-6 border border-gray-200">
           <h3 class="text-lg font-semibold mb-4 text-center">QR codes</h3>
           <div class="space-y-4">
             <!-- QR Item -->
+            <% qr_codes.forEach((qr_code) => { %>
             <div class="border-b border-gray-100 pb-4">
               <div class="flex justify-between items-center mb-2">
-                <span class="font-medium text-sm">QR Code #1</span>
-                <span class="text-sm text-gray-500">12 téléchargements</span>
+                <span class="font-medium text-sm">QR Code #<%= qr_code.id %></span>
+                <span class="text-sm text-gray-500"><%= qr_code.scans %> scans</span>
               </div>
-              <p class="text-sm text-gray-600 mb-2 truncate">https://www.example.com/very-long-url</p>
+              <p class="text-sm text-gray-600 mb-2 truncate">Lien original : <%= qr_code.original_url %></p>
               <div class="bg-gray-100 rounded-lg p-3 mb-2 flex justify-center">
                 <div class="w-16 h-16 bg-white rounded border border-gray-300 flex items-center justify-center">
-                  <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V6a1 1 0 00-1-1H5a1 1 0 00-1 1v1a1 1 0 001 1zm12 0h2a1 1 0 001-1V6a1 1 0 00-1-1h-2a1 1 0 00-1 1v1a1 1 0 001 1zM5 20h2a1 1 0 001-1v-1a1 1 0 00-1-1H5a1 1 0 00-1 1v1a1 1 0 001 1z"></path>
-                  </svg>
-                </div>
-              </div>
-              <div class="flex gap-2">
-                <button class="text-blue-600 hover:text-blue-800 text-sm">Télécharger</button>
-                <button class="text-red-600 hover:text-red-800 text-sm">Supprimer</button>
-              </div>
-            </div>
 
-            <!-- QR Item -->
-            <div class="border-b border-gray-100 pb-4">
-              <div class="flex justify-between items-center mb-2">
-                <span class="font-medium text-sm">QR Code #2</span>
-                <span class="text-sm text-gray-500">8 téléchargements</span>
-              </div>
-              <p class="text-sm text-gray-600 mb-2 truncate">https://github.com/username/repo</p>
-              <div class="bg-gray-100 rounded-lg p-3 mb-2 flex justify-center">
-                <div class="w-16 h-16 bg-white rounded border border-gray-300 flex items-center justify-center">
-                  <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V6a1 1 0 00-1-1H5a1 1 0 00-1 1v1a1 1 0 001 1zm12 0h2a1 1 0 001-1V6a1 1 0 00-1-1h-2a1 1 0 00-1 1v1a1 1 0 001 1zM5 20h2a1 1 0 001-1v-1a1 1 0 00-1-1H5a1 1 0 00-1 1v1a1 1 0 001 1z"></path>
-                  </svg>
                 </div>
               </div>
               <div class="flex gap-2">
@@ -137,26 +93,7 @@
                 <button class="text-red-600 hover:text-red-800 text-sm">Supprimer</button>
               </div>
             </div>
-
-            <!-- QR Item -->
-            <div class="pb-4">
-              <div class="flex justify-between items-center mb-2">
-                <span class="font-medium text-sm">QR Code #3</span>
-                <span class="text-sm text-gray-500">0 téléchargements</span>
-              </div>
-              <p class="text-sm text-gray-600 mb-2 truncate">https://stackoverflow.com/questions/123</p>
-              <div class="bg-gray-100 rounded-lg p-3 mb-2 flex justify-center">
-                <div class="w-16 h-16 bg-white rounded border border-gray-300 flex items-center justify-center">
-                  <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V6a1 1 0 00-1-1H5a1 1 0 00-1 1v1a1 1 0 001 1zm12 0h2a1 1 0 001-1V6a1 1 0 00-1-1h-2a1 1 0 00-1 1v1a1 1 0 001 1zM5 20h2a1 1 0 001-1v-1a1 1 0 00-1-1H5a1 1 0 00-1 1v1a1 1 0 001 1z"></path>
-                  </svg>
-                </div>
-              </div>
-              <div class="flex gap-2">
-                <button class="text-blue-600 hover:text-blue-800 text-sm">Télécharger</button>
-                <button class="text-red-600 hover:text-red-800 text-sm">Supprimer</button>
-              </div>
-            </div>
+            <% }); %>
           </div>
         </div>
       </div>
@@ -170,20 +107,20 @@
       <div class="bg-white rounded-2xl shadow-sm p-6 w-full md:w-[35rem] mb-8 border border-gray-200">
         <div class="grid grid-cols-2 gap-4 text-center">
           <div>
-            <p class="text-2xl font-bold text-blue-600">24</p>
+            <p class="text-2xl font-bold text-blue-600"><%= numberOfLinks %></p>
             <p class="text-sm text-gray-600">Liens raccourcis</p>
           </div>
           <div>
-            <p class="text-2xl font-bold text-green-600">12</p>
+            <p class="text-2xl font-bold text-green-600"><%= numberOfQRCodes %></p>
             <p class="text-sm text-gray-600">QR Codes</p>
           </div>
           <div>
-            <p class="text-2xl font-bold text-purple-600">1,247</p>
+            <p class="text-2xl font-bold text-purple-600"><%= numberOfClicks %></p>
             <p class="text-sm text-gray-600">Clics totaux</p>
           </div>
           <div>
-            <p class="text-2xl font-bold text-orange-600">89</p>
-            <p class="text-sm text-gray-600">Téléchargements</p>
+            <p class="text-2xl font-bold text-orange-600"><%= numberOfScans %></p>
+            <p class="text-sm text-gray-600">Scans</p>
           </div>
         </div>
       </div>

@@ -14,7 +14,7 @@
       <a href="/">
         <h1 class="text-3xl font-light tracking-tight">LY1</h1>
       </a>
-      <div class="hidden md:flex justify-center items-center gap-4 " id="desktop-menu">
+      <div class="md:flex justify-center items-center gap-4 " id="desktop-menu">
         <a href="/logout" class="button-blue-light transition-shadow hover:drop-shadow-sm">Déconnexion</a>
       </div>
     </nav>
@@ -29,7 +29,7 @@
     <!-- Create Form -->
     <section class="flex flex-col justify-center items-center text-center">
       <div class="py-3 bg-blue-600 rounded-2xl w-full md:w-[35rem] mb-8">
-        <form action="/admin/create" method="POST" class="flex space-x-2 px-2">
+        <form action="/admin/create" method="POST" class="flex flex-col md:flex-row gap-4 px-2">
           <select name="type" class="bg-white rounded-[0.5rem] px-2 py-2 text-sm focus:outline-none">
             <option value="link" <% if (locals.type && type === "link") { %> selected <% } %>>Lien raccourci</option>
             <option value="qr" <% if (locals.type && type === "qr") { %> selected <% } %>>QR Code</option>
@@ -47,28 +47,33 @@
       <h2>Vos liens et QR codes</h2>
     </section>
 
-    <section class="flex flex-col justify-center items-center mb-16">
-      <div class="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <section class="flex flex-1 justify-center items-center mb-8">
+      <div class="grid grid-cols-1 lg:grid-cols-2 w-11/12 sm:w-3/4 gap-8">
         <!-- Links List -->
         <div class="bg-white rounded-2xl shadow-sm p-6 border border-gray-200">
-          <h3 class="text-lg font-semibold mb-4 text-center">Liens raccourcis</h3>
-          <div class="space-y-4">
+          <h3 class="text-lg font-semibold mb-10 text-center">Liens raccourcis</h3>
+          <div class="grid grid-cols-1 gap-4">
             <% if (links.length > 0) { %>
             <!-- Link Item -->
             <% links.forEach((link) => { %>
             <div class="border-b border-gray-100 pb-4">
-              <div class="flex justify-between items-center mb-2">
+              <div class="flex flex-col sm:flex-row justify-between mb-2 gap-2">
                 <span class="font-mono text-sm bg-gray-100 px-2 py-1 rounded">https://localhost:3000/<%= link.short_code %></span>
                 <span class="text-sm text-gray-500"><%= link.clicks %> clics</span>
               </div>
-              <p class="text-sm text-gray-600 mb-2 truncate">Lien original : <%= link.original_url %></p>
-
-              <div class="flex gap-2">
-                <button class="text-blue-600 hover:text-blue-800 hover:cursor-pointer text-sm" onclick="copyToClipboard(`http://localhost:3000/<%= link.short_code %>`)">Copier</button>
-                <form action="/delete-link" method="post">
-                  <button class="text-red-600 hover:text-red-800 text-sm hover:cursor-pointer" type="submit">Supprimer</button>
-                  <input type="hidden" name="link_id" value="<%= link.id %>">
-                </form>
+              <div class="flex gap-2 justify-between">
+                <div class="flex gap-4">
+                  <button class="text-blue-600 hover:text-blue-800 hover:cursor-pointer text-sm" onclick="copyToClipboard(`http://localhost:3000/<%= link.short_code %>`)">Copier</button>
+                  <button onclick="showUrlAlert(`http://localhost:3000/<%= link.original_url %>`)" class="hover:cursor-pointer text-sm">
+                    URL originale
+                  </button>
+                </div>
+                <div class="flex gap-2">
+                  <form action="/delete-link" method="post">
+                    <button class="text-red-600 hover:text-red-800 text-sm hover:cursor-pointer" type="submit">Supprimer</button>
+                    <input type="hidden" name="link_id" value="<%= link.id %>">
+                  </form>
+                </div>
               </div>
             </div>
             <% }); %>
@@ -83,8 +88,8 @@
         <!-- QR Codes List -->
 
         <div class="bg-white rounded-2xl shadow-sm p-6 border border-gray-200">
-          <h3 class="text-lg font-semibold mb-4 text-center">QR codes</h3>
-          <div class="space-y-4">
+          <h3 class="text-lg font-semibold mb-10 text-center">QR codes</h3>
+          <div class="grid grid-cols-1 2xl:grid-cols-2 gap-10">
             <% if (qr_codes.length > 0) { %>
             <!-- QR Item -->
             <% qr_codes.forEach((qr_code, index) => { %>
@@ -93,21 +98,28 @@
                 <span class="font-medium text-sm">QR Code #<%= index + 1 %></span>
                 <span class="text-sm text-gray-500"><%= qr_code.scans %> scans</span>
               </div>
-              <p class="text-sm text-gray-600 mb-2 truncate">Lien original : <br /> <%= qr_code.original_url %></p>
-              <div class="bg-gray-100 rounded-lg p-3 mb-2 flex justify-center">
-                <div class="w-16 h-16 bg-white rounded border border-gray-300 flex items-center justify-center">
-                  <img src="<%= qr_code.qr_data_url %>" />
+              <div class="flex flex-col justify-between items-start gap-2">
+
+                <div class="w-16 h-16 bg-white rounded border border-gray-300 flex items-center justify-center ml-4">
+                  <img src="<%= qr_code.qr_data_url %>" class="w-full h-full object-contain" />
                 </div>
               </div>
-              <div class="flex gap-2">
-                <form action="/download-qr-code" method="post">
-                  <button class="text-blue-600 hover:text-blue-800 hover:cursor-pointer text-sm">Télécharger</button>
-                  <input type="hidden" name="qr_code" value="<%= qr_code.qr_data_url %>">
-                </form>
-                <form action="/delete-qr-code" method="post">
-                  <button type="submit" class="text-red-600 hover:text-red-800 hover:cursor-pointer text-sm">Supprimer</button>
-                  <input type="hidden" name="qr_code_id" value="<%= qr_code.id %>">
-                </form>
+              <div class="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-2">
+                <div class="flex sm:self-end gap-4">
+                  <form action="/download-qr-code" method="post" class="sm:self-end">
+                    <button class="text-blue-600 hover:text-blue-800 hover:cursor-pointer text-sm">Télécharger</button>
+                    <input type="hidden" name="qr_code" value="<%= qr_code.qr_data_url %>">
+                  </form>
+                  <button onclick="showUrlAlert('<%= qr_code.original_url %>')" class="hover:cursor-pointer text-sm">
+                    URL originale
+                  </button>
+                </div>
+                <div class="flex">
+                  <form action="/delete-qr-code" class="self-end" method="post">
+                    <button type="submit" class="text-red-600 hover:text-red-800 hover:cursor-pointer text-sm">Supprimer</button>
+                    <input type="hidden" name="qr_code_id" value="<%= qr_code.id %>">
+                  </form>
+                </div>
               </div>
             </div>
             <% }); %>
@@ -121,12 +133,8 @@
       </div>
     </section>
     <!-- Statistics -->
-    <section class="flex flex-col justify-center items-center text-center font-bold my-11">
-      <h2>Vos statistiques</h2>
-    </section>
-
-    <section class="flex flex-col justify-center items-center">
-      <div class="bg-white rounded-2xl shadow-sm p-6 w-full md:w-[35rem] mb-8 border border-gray-200">
+    <section class="flex flex-col justify-center items-center mb-6">
+      <div class="bg-white rounded-2xl shadow-sm w-3/4 p-6 mb-8 border border-gray-200">
         <div class="grid grid-cols-2 gap-4 text-center">
           <div>
             <p class="text-2xl font-bold text-blue-600"><%= numberOfLinks %></p>

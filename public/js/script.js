@@ -82,3 +82,6 @@ function copyToClipboard(text) {
       alert("URL copiée dans le presse-papiers !");
     });
 }
+function showUrlAlert(url) {
+  alert("URL originale : " + url);
+}

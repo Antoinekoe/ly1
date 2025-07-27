@@ -408,7 +408,7 @@ app.post("/delete-link", async (req, res) => {
   res.redirect("/admin");
 });
 
-app.post("/download-qr-code", async (req, res) => {
+app.post("/download-temp-qr-code", async (req, res) => {
   if (req.session.qrCodeDataURL) {
     try {
       //Replace the data type to base 64, and buffer it for the browser to be able to read it
@@ -427,6 +427,25 @@ app.post("/download-qr-code", async (req, res) => {
       return res.redirect("/");
     }
   } else {
+    return res.redirect("/");
+  }
+});
+
+app.post("/download-qr-code", async (req, res) => {
+  try {
+    //Replace the data type to base 64, and buffer it for the browser to be able to read it
+    const dataURL = req.body.qr_code;
+    const base64 = dataURL.replace(/^data:image\/png;base64,/, "");
+    const buffer = Buffer.from(base64, "base64");
+
+    //Set the header for browser request with the type of the image sent, tells it to download, and set the length
+    res.setHeader("Content-Type", "image/png");
+    res.setHeader("Content-Disposition", "attachment; filename=qr-code.png ");
+    res.setHeader("Content-Length", buffer.length);
+
+    res.send(buffer);
+  } catch (error) {
+    console.log("Error downloading QR code :", error);
     return res.redirect("/");
   }
 });

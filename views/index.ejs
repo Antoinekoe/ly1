@@ -85,7 +85,7 @@
           <% } %>
         </form>
         <% if (qrCodeDataURL) { %>
-        <form action="/download-qr-code" method="POST" class="flex flex-col justify-center items-center w-fit">
+        <form action="/download-temp-qr-code" method="POST" class="flex flex-col justify-center items-center w-fit">
           <img src="<%= qrCodeDataURL %>" alt="QR Code" class="mx-auto rounded-[0.3rem] mb-2">
           <button type="submit" class="bg-white rounded-[0.3rem] px-4 py-2 font-semibold mx-auto cursor-pointer w-full">Télécharger</button>
         </form>
@@ -112,7 +112,7 @@
           <button type="submit" class="cursor-pointer bg-white rounded-[0.5rem] px-2 py-2 font-semibold w-43 <%= isQrCodeCreated ? 'hidden' : '' %>">Créer</button>
         </form>
         <% if (qrCodeDataURL) { %>
-        <form action="/download-qr-code" method="POST" class="flex flex-col justify-center items-center w-fit">
+        <form action="/download-temp-qr-code" method="POST" class="flex flex-col justify-center items-center w-fit">
           <img src="<%= qrCodeDataURL %>" alt="QR Code" class="mx-auto rounded-[0.3rem] mb-2">
           <button type="submit" class="bg-white rounded-[0.3rem] px-4 py-2 font-semibold mx-auto cursor-pointer w-full">Télécharger</button>
         </form>

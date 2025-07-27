@@ -192,6 +192,7 @@ app.get("/admin", async (req, res) => {
       numberOfQRCodes: numberOfQRCodes,
       numberOfClicks: numberOfClicks,
       numberOfScans: numberOfScans,
+      type: req.session.type,
     });
   } else {
     res.render("login.ejs");
@@ -259,7 +260,8 @@ app.get(
 );
 
 app.post("/admin/create", async (req, res) => {
-  console.log(req.body);
+  console.log(req.body.type);
+  req.session.type = req.body.type;
   const userId = req.session.passport.user.id;
   const type = req.body.type;
   const oldUrl = req.body.value;

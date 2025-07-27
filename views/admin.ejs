@@ -53,6 +53,7 @@
         <div class="bg-white rounded-2xl shadow-sm p-6 border border-gray-200">
           <h3 class="text-lg font-semibold mb-4 text-center">Liens raccourcis</h3>
           <div class="space-y-4">
+            <% if (links.length > 0) { %>
             <!-- Link Item -->
             <% links.forEach((link) => { %>
             <div class="border-b border-gray-100 pb-4">
@@ -71,6 +72,11 @@
               </div>
             </div>
             <% }); %>
+            <% } else { %>
+            <div class="flex flex-col justify-center items-center h-[200px]">
+              <span> Créez votre premier lien raccourci !</span>
+            </div>
+            <% } %>
           </div>
         </div>
 
@@ -79,11 +85,12 @@
         <div class="bg-white rounded-2xl shadow-sm p-6 border border-gray-200">
           <h3 class="text-lg font-semibold mb-4 text-center">QR codes</h3>
           <div class="space-y-4">
+            <% if (qr_codes.length > 0) { %>
             <!-- QR Item -->
-            <% qr_codes.forEach((qr_code) => { %>
+            <% qr_codes.forEach((qr_code, index) => { %>
             <div class="border-b border-gray-100 pb-4">
               <div class="flex justify-between items-center mb-2">
-                <span class="font-medium text-sm">QR Code #<%= qr_code.id %></span>
+                <span class="font-medium text-sm">QR Code #<%= index + 1 %></span>
                 <span class="text-sm text-gray-500"><%= qr_code.scans %> scans</span>
               </div>
               <p class="text-sm text-gray-600 mb-2 truncate">Lien original : <br /> <%= qr_code.original_url %></p>
@@ -104,6 +111,11 @@
               </div>
             </div>
             <% }); %>
+            <% } else { %>
+            <div class="flex flex-col justify-center items-center h-[200px]">
+              <span> Créez votre premier QR code !</span>
+            </div>
+            <% } %>
           </div>
         </div>
       </div>

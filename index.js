@@ -159,7 +159,7 @@ app.get("/admin", async (req, res) => {
 
     try {
       const response = await pool.query(
-        "SELECT * FROM links WHERE user_id = $1",
+        "SELECT * FROM links WHERE user_id = $1 AND is_active = true",
         [req.session.passport.user.id]
       );
       links = response.rows;
@@ -173,7 +173,7 @@ app.get("/admin", async (req, res) => {
 
     try {
       const response = await pool.query(
-        "SELECT * FROM qr_code WHERE user_id = $1",
+        "SELECT * FROM qr_code WHERE user_id = $1 AND is_active = true",
         [req.session.passport.user.id]
       );
       qr_codes = response.rows;
@@ -383,10 +383,10 @@ app.post("/delete-qr-code", async (req, res) => {
   console.log(req.body.qr_code_id);
 
   try {
-    const response = await pool.query("DELETE FROM qr_code WHERE id=$1", [
-      req.body.qr_code_id,
-    ]);
-    console.log("Supprimé !");
+    const response = await pool.query(
+      "UPDATE qr_code SET is_active = false, qr_data_url = NULL WHERE id=$1",
+      [req.body.qr_code_id]
+    );
   } catch (error) {
     console.error(error);
   }
@@ -397,9 +397,10 @@ app.post("/delete-link", async (req, res) => {
   console.log(req.body.qr_code_id);
 
   try {
-    const response = await pool.query("DELETE FROM links WHERE id=$1", [
-      req.body.link_id,
-    ]);
+    const response = await pool.query(
+      "UPDATE links SET is_active = false, short_code = NULL WHERE id=$1",
+      [req.body.link_id]
+    );
     console.log("Supprimé !");
   } catch (error) {
     console.error(error);
@@ -436,30 +437,34 @@ app.get("/:id", async (req, res) => {
   console.log("ID route being called with id :", req.params.id);
 
   const newUrl = await pool.query(
-    "SELECT COALESCE(temp_links.short_code, links.short_code) as short_code, COALESCE(temp_links.original_url, links.original_url) as original_url, COALESCE(temp_links.clicks, links.clicks) as clicks FROM temp_links FULL OUTER JOIN links ON temp_links.short_code = links.short_code WHERE temp_links.short_code = $1 OR links.short_code = $1",
+    "SELECT COALESCE(temp_links.short_code, links.short_code) as short_code, COALESCE(temp_links.original_url, links.original_url) as original_url, COALESCE(temp_links.clicks, links.clicks) as clicks FROM temp_links FULL OUTER JOIN links ON temp_links.short_code = links.short_code WHERE (temp_links.short_code = $1 OR links.short_code = $1) AND COALESCE(temp_links.short_code, links.short_code) IS NOT NULL",
     [shortUrlRequested]
   );
-  if (shortUrlRequested === newUrl.rows[0].short_code) {
-    try {
-      const result = await pool.query(
-        "UPDATE temp_links SET clicks = clicks + 1 WHERE short_code = $1 RETURNING short_code, clicks",
-        [newUrl.rows[0].short_code]
-      );
+  if (newUrl.rows.length > 0) {
+    if (shortUrlRequested === newUrl.rows[0].short_code) {
+      try {
+        const result = await pool.query(
+          "UPDATE temp_links SET clicks = clicks + 1 WHERE short_code = $1 RETURNING short_code, clicks",
+          [newUrl.rows[0].short_code]
+        );
 
-      if (result.rowCount === 0) {
-        try {
-          const result = await pool.query(
-            "UPDATE links SET clicks = clicks + 1 WHERE short_code = $1 RETURNING short_code, clicks",
-            [newUrl.rows[0].short_code]
-          );
-        } catch (error) {
-          console.log("Error in updating clicks in links table", error);
+        if (result.rowCount === 0) {
+          try {
+            const result = await pool.query(
+              "UPDATE links SET clicks = clicks + 1 WHERE short_code = $1 RETURNING short_code, clicks",
+              [newUrl.rows[0].short_code]
+            );
+          } catch (error) {
+            console.log("Error in updating clicks in links table", error);
+          }
         }
+      } catch (error) {
+        console.log("Error in updating clicks in temp_links table");
       }
-    } catch (error) {
-      console.log("Error in updating clicks in temp_links table");
+      res.redirect(newUrl.rows[0].original_url);
+    } else {
+      res.status(404).send("Short URL not found");
     }
-    res.redirect(newUrl.rows[0].original_url);
   } else {
     res.status(404).send("Short URL not found");
   }

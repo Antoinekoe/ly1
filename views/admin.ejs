@@ -38,6 +38,13 @@
           <button type="submit" class="cursor-pointer bg-white rounded-[0.5rem] px-2 py-2 font-semibold w-43">Créer</button>
         </form>
       </div>
+      <% if (linksLimitReached === true && qrCodesLimitReached === false) { %>
+      <span class="text-red-500 text-sm">Limite de création de liens raccourcis atteinte ! (10 maximum par utilisateur)</span>
+      <% } else if (linksLimitReached === false && qrCodesLimitReached === true) { %>
+      <span class="text-red-500 text-sm">Limite de création de QR codes atteinte ! (10 maximum par utilisateur)</span>
+      <% } else if (linksLimitReached === true && qrCodesLimitReached === true) { %>
+      <span class="text-red-500 text-sm">Limite de création de QR codes et de liens atteinte ! (10 maximum par utilisateur)</span>
+      <% } %>
     </section>
 
 

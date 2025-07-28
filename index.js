@@ -140,7 +140,8 @@ app.post("/login", (req, res, next) => {
         req.session.loginError = "Erreur lors de la connexion";
         return res.redirect("/login");
       }
-
+      req.session.qrCodesLimitReached = false;
+      req.session.session.linksLimitReached = false;
       req.session.isRegistered = true;
       req.session.loginError = null;
       return res.redirect("/admin");
@@ -162,6 +163,11 @@ app.get("/admin", async (req, res) => {
         "SELECT * FROM links WHERE user_id = $1 AND is_active = true",
         [req.session.passport.user.id]
       );
+      if (response.rows.length <= 9) {
+        req.session.linksLimitReached = false;
+      } else {
+        req.session.linksLimitReached = true;
+      }
       links = response.rows;
       numberOfLinks = response.rows.length;
       response.rows.forEach((row) => {
@@ -176,6 +182,11 @@ app.get("/admin", async (req, res) => {
         "SELECT * FROM qr_code WHERE user_id = $1 AND is_active = true",
         [req.session.passport.user.id]
       );
+      if (response.rows.length <= 9) {
+        req.session.qrCodesLimitReached = false;
+      } else {
+        req.session.qrCodesLimitReached = true;
+      }
       qr_codes = response.rows;
       numberOfQRCodes = response.rows.length;
       response.rows.forEach((row) => {
@@ -193,6 +204,8 @@ app.get("/admin", async (req, res) => {
       numberOfClicks: numberOfClicks,
       numberOfScans: numberOfScans,
       type: req.session.type,
+      linksLimitReached: req.session.linksLimitReached,
+      qrCodesLimitReached: req.session.qrCodesLimitReached,
     });
   } else {
     res.render("login.ejs");
@@ -238,6 +251,8 @@ app.post("/signup", async (req, res) => {
             );
             const user = result.rows[0].id;
             req.login(user, (err) => {
+              req.session.qrCodesLimitReached = false;
+              req.session.session.linksLimitReached = false;
               req.session.isRegistered = true;
               res.redirect("/admin");
             });
@@ -260,44 +275,51 @@ app.get(
 );
 
 app.post("/admin/create", async (req, res) => {
-  console.log(req.body.type);
   req.session.type = req.body.type;
   const userId = req.session.passport.user.id;
   const type = req.body.type;
   const oldUrl = req.body.value;
 
   if (type === "link") {
-    const newUrl = nanoid(6); // Generate 6-char random ID
-    try {
-      await pool.query(
-        "INSERT INTO links (user_id, short_code, original_url) VALUES ($1, $2, $3)",
-        [userId, newUrl, oldUrl]
-      );
-    } catch (error) {
-      console.log("Error inserting temp links in DB :", error);
+    if (req.session.linksLimitReached === false) {
+      const newUrl = nanoid(6); // Generate 6-char random ID
+      try {
+        await pool.query(
+          "INSERT INTO links (user_id, short_code, original_url) VALUES ($1, $2, $3)",
+          [userId, newUrl, oldUrl]
+        );
+      } catch (error) {
+        console.log("Error inserting temp links in DB :", error);
+      }
+      res.redirect("/admin");
+    } else {
+      res.redirect("/admin");
     }
-    res.redirect("/admin");
   } else {
     if (req.session.isQrCodeCreated === true) {
       res.redirect("/");
     } else {
-      try {
-        const dataURL = await QRCode.toDataURL(oldUrl);
-
-        // Insert the QR code datas in DB
+      if (req.session.qrCodesLimitReached === false) {
         try {
-          await pool.query(
-            "INSERT INTO qr_code (user_id, original_url, qr_data_url) VALUES ($1, $2, $3)",
-            [userId, oldUrl, dataURL]
-          );
-        } catch (error) {
-          console.log("Error in inserting QR code in DB :", error);
-        }
+          const dataURL = await QRCode.toDataURL(oldUrl);
 
+          // Insert the QR code datas in DB
+          try {
+            await pool.query(
+              "INSERT INTO qr_code (user_id, original_url, qr_data_url) VALUES ($1, $2, $3)",
+              [userId, oldUrl, dataURL]
+            );
+          } catch (error) {
+            console.log("Error in inserting QR code in DB :", error);
+          }
+
+          res.redirect("/admin");
+        } catch (error) {
+          console.log("Error creating QR code :", error);
+          res.redirect("/admin");
+        }
+      } else {
         res.redirect("/admin");
-      } catch (error) {
-        console.log("Error creating QR code :", error);
-        res.redirect("/");
       }
     }
   }

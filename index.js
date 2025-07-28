@@ -9,9 +9,10 @@ import { Strategy as GoogleStrategy } from "passport-google-oauth2";
 import env from "dotenv";
 import { nanoid } from "nanoid";
 import QRCode from "qrcode";
+import rateLimit from "express-rate-limit";
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 const saltRounds = 10; // Bcrypt salt rounds
 env.config();
 
@@ -19,8 +20,12 @@ app.use(
   session({
     secret: process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: true,
-    cookie: { secure: false, maxAge: 7 * 24 * 60 * 60 * 1000 },
+    saveUninitialized: false,
+    cookie: {
+      // secure: process.env.NODE_ENV === "production",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      httpOnly: true,
+    },
   })
 );
 
@@ -32,7 +37,7 @@ const pool = new pg.Pool({
   host: process.env.HOST,
   database: process.env.DATABASE,
   password: process.env.PASSWORD,
-  port: process.env.PORT,
+  port: process.env.DATABASE_PORT || 5432,
 });
 
 app.set("view engine", "ejs");
@@ -56,6 +61,58 @@ async function getOrCreateTempUser(ip) {
   }
   return result.rows[0].id; // Return the user ID
 }
+
+function isValidUrl(string) {
+  try {
+    new URL(string);
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
+
+function isValidEmail(email) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+
+function sanitizeInput(input) {
+  if (typeof input !== "string") return input;
+  return input.trim().replace(/[<>]/g, "").substring(0, 1000);
+}
+
+function validateUrl(req, res, next) {
+  const url = req.body.value || req.body.urlToQR || req.body.originalUrl;
+
+  if (url && !isValidUrl(url)) {
+    req.session.error = "Invalid URL format";
+    return res.redirect("/admin");
+  }
+
+  req.session.error = null;
+  next();
+}
+
+function validateEmail(req, res, next) {
+  const email = req.body.email;
+  if (email && !isValidEmail(email)) {
+    req.session.signupError = "Invalid email format";
+    return res.redirect("/signup");
+  }
+  next();
+}
+
+const createUrlLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: "Too many URL creations, please try again later.",
+});
+
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  message: "Too many login attempts, please try again later.",
+});
 
 app.get("/favicon.ico", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "favicon.png"));
@@ -123,7 +180,7 @@ app.get("/login", (req, res) => {
   });
 });
 
-app.post("/login", (req, res, next) => {
+app.post("/login", loginLimiter, (req, res, next) => {
   passport.authenticate("local", (err, user, info) => {
     if (err) {
       req.session.loginError = "Une erreur s'est produite";
@@ -140,8 +197,9 @@ app.post("/login", (req, res, next) => {
         req.session.loginError = "Erreur lors de la connexion";
         return res.redirect("/login");
       }
+      console.log("Login succesful, user:", user);
       req.session.qrCodesLimitReached = false;
-      req.session.session.linksLimitReached = false;
+      req.session.linksLimitReached = false;
       req.session.isRegistered = true;
       req.session.loginError = null;
       return res.redirect("/admin");
@@ -160,7 +218,7 @@ app.get("/admin", async (req, res) => {
 
     try {
       const response = await pool.query(
-        "SELECT * FROM links WHERE user_id = $1 AND is_active = true",
+        "SELECT * FROM links WHERE user_id = $1 AND is_active = true ORDER BY created_at DESC",
         [req.session.passport.user.id]
       );
       if (response.rows.length <= 9) {
@@ -206,8 +264,10 @@ app.get("/admin", async (req, res) => {
       type: req.session.type,
       linksLimitReached: req.session.linksLimitReached,
       qrCodesLimitReached: req.session.qrCodesLimitReached,
+      error: req.session.error,
     });
   } else {
+    console.log("User not authenticated, redirecting to login");
     res.render("login.ejs");
   }
 });
@@ -225,7 +285,8 @@ app.get("/signup", (req, res) => {
   res.render("signup.ejs");
 });
 
-app.post("/signup", async (req, res) => {
+app.post("/signup", loginLimiter, validateEmail, async (req, res) => {
+  req.body.email = sanitizeInput(req.body.email);
   const email = req.body.email;
   const password = req.body.password;
 
@@ -252,7 +313,7 @@ app.post("/signup", async (req, res) => {
             const user = result.rows[0].id;
             req.login(user, (err) => {
               req.session.qrCodesLimitReached = false;
-              req.session.session.linksLimitReached = false;
+              req.session.linksLimitReached = false;
               req.session.isRegistered = true;
               res.redirect("/admin");
             });
@@ -274,8 +335,9 @@ app.get(
   })
 );
 
-app.post("/admin/create", async (req, res) => {
+app.post("/admin/create", createUrlLimiter, validateUrl, async (req, res) => {
   req.session.type = req.body.type;
+  req.body.value = sanitizeInput(req.body.value);
   const userId = req.session.passport.user.id;
   const type = req.body.type;
   const oldUrl = req.body.value;
@@ -346,7 +408,7 @@ app.get("/auth/google/admin", (req, res, next) => {
   })(req, res, next);
 });
 
-app.post("/create-url", async (req, res) => {
+app.post("/create-url", validateUrl, async (req, res) => {
   if (req.session.isURLCreated === true) {
     res.redirect("/");
   } else {
@@ -372,7 +434,7 @@ app.post("/create-url", async (req, res) => {
   }
 });
 
-app.post("/create-qr-code", async (req, res) => {
+app.post("/create-qr-code", validateUrl, async (req, res) => {
   if (req.session.isQrCodeCreated === true) {
     res.redirect("/");
   } else {
@@ -555,7 +617,9 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "http://localhost:3000/auth/google/admin",
+      callbackURL:
+        //   process.env.GOOGLE_CALLBACK_URL ||
+        "http://localhost:3000/auth/google/admin",
       userProfileURL: "https://www.googleapis.com/oauth2/v3/userinfo",
     },
     async (accessToken, refreshToken, profile, cb) => {
@@ -581,8 +645,18 @@ passport.use(
 passport.serializeUser((user, cb) => {
   cb(null, user);
 });
+
 passport.deserializeUser((user, cb) => {
   cb(null, user);
+});
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send("Something broke!");
+});
+
+app.use((req, res) => {
+  res.status(404).send("Page not found");
 });
 
 app.listen(port, (req, res) => {

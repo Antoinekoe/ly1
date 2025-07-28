@@ -39,12 +39,16 @@
         </form>
       </div>
       <% if (linksLimitReached === true && qrCodesLimitReached === false) { %>
-      <span class="text-red-500 text-sm">Limite de création de liens raccourcis atteinte ! (10 maximum par utilisateur)</span>
+      <span class="text-red-500 text-sm mb-2">Limite de création de liens raccourcis atteinte ! (10 maximum par utilisateur)</span>
       <% } else if (linksLimitReached === false && qrCodesLimitReached === true) { %>
-      <span class="text-red-500 text-sm">Limite de création de QR codes atteinte ! (10 maximum par utilisateur)</span>
+      <span class="text-red-500 text-sm mb-2">Limite de création de QR codes atteinte ! (10 maximum par utilisateur)</span>
       <% } else if (linksLimitReached === true && qrCodesLimitReached === true) { %>
-      <span class="text-red-500 text-sm">Limite de création de QR codes et de liens atteinte ! (10 maximum par utilisateur)</span>
+      <span class="text-red-500 text-sm mb-2">Limite de création de QR codes et de liens atteinte ! (10 maximum par utilisateur)</span>
       <% } %>
+      <% if (error === "Invalid URL format") { %>
+      <span class="text-red-500 text-sm">Format d'URL invalide</span>
+      <% } %>
+      <% error = null; %>
     </section>
 
 

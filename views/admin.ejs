@@ -48,7 +48,11 @@
       <% if (error === "Invalid URL format") { %>
       <span class="text-red-500 text-sm">Format d'URL invalide</span>
       <% } %>
-      <% error = null; %>
+      <% if (limitError) { %>
+      <span class="text-red-500 text-sm">
+        <%= limitError %>
+      </span>
+      <% } %>
     </section>
 
 
@@ -135,7 +139,7 @@
             </div>
             <% }); %>
             <% } else { %>
-            <div class="flex flex-col justify-center items-center h-[200px]">
+            <div class="flex flex-col justify-center items-center h-[200px] text-center col-span-2">
               <span> Créez votre premier QR code !</span>
             </div>
             <% } %>

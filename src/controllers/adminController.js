@@ -39,6 +39,8 @@ class AdminController {
         linksLimitReached: limits.linksLimitReached,
         qrCodesLimitReached: limits.qrCodesLimitReached,
         error: req.session.error,
+        isRegistered: req.session.isRegistered,
+        limitError: req.session.limitError,
       });
     } catch (error) {
       console.error("Error rendering admin dashboard:", error);
@@ -64,7 +66,7 @@ class AdminController {
         await Link.create(userId, originalUrl);
       } else {
         // Create QR code
-        const userQrCodes = await QRCodeModel.getActiveByUserId(userId);
+        const userQrCodes = await QRCodeModel.getActiveQRCodesByUserId(userId);
         if (userQrCodes.length >= 10) {
           req.session.qrCodesLimitReached = true;
           return res.redirect("/admin");

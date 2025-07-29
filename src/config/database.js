@@ -14,19 +14,25 @@ const pool = new pg.Pool({
   connectionTimeoutMillis: 2000,
 });
 
-// Add error handling for the pool
+// Error handling
 pool.on("error", (err) => {
-  console.error("Unexpected error on idle client", err);
-  process.exit(-1);
-});
-
-// Test the connection
-pool.query("SELECT NOW()", (err, res) => {
-  if (err) {
-    console.error("Database connection failed:", err);
+  if (process.env.NODE_ENV === "production") {
+    // Maybe send alert to monitoring service
+    console.error("Database error in production - check monitoring");
   } else {
-    console.log("Database connected successfully");
+    process.exit(-1); // Only exit in development
   }
 });
+
+// Conditional connection test
+if (process.env.NODE_ENV === "development") {
+  pool.query("SELECT NOW()", (err, res) => {
+    if (err) {
+      console.error("Database connection failed:", err);
+    } else {
+      console.log("Database connected successfully");
+    }
+  });
+}
 
 export default pool;

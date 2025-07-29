@@ -1,14 +1,11 @@
 import Link from "../models/link.js";
 import QRCodeModel from "../models/QRcode.js";
-import QrController from "./qrController.js";
-import passport from "passport";
 
 class AdminController {
   // Render admin dashboard
   static async renderDashboard(req, res) {
     try {
       if (!req.isAuthenticated()) {
-        console.log("User not authenticated, redirecting to login");
         return res.render("login.ejs");
       }
 

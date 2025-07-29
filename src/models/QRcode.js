@@ -33,7 +33,7 @@ class QRCodeModel {
   }
 
   // Get all active QR codes for a user
-  static async getActiveByUserId(userId) {
+  static async getActiveQRCodesByUserId(userId) {
     try {
       const result = await pool.query(
         "SELECT * FROM qr_code WHERE user_id = $1 AND is_active = true",

@@ -1,4 +1,6 @@
 import pg from "pg";
+import env from "dotenv";
+env.config();
 
 // Database connection pool
 const pool = new pg.Pool({
@@ -9,7 +11,7 @@ const pool = new pg.Pool({
   port: process.env.DATABASE_PORT || 5432,
   max: 20,
   idleTimeoutMillis: 30000,
-  connecitonTimeoutMillis: 2000,
+  connectionTimeoutMillis: 2000,
 });
 
 // Add error handling for the pool

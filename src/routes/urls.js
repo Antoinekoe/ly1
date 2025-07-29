@@ -2,6 +2,7 @@ import express from "express";
 import UrlController from "../controllers/urlController.js";
 import { createUrlLimiter } from "../middleware/rateLimiting.js";
 import { validateUrl } from "../middleware/validation.js";
+import AuthController from "../controllers/authController.js";
 
 const router = express.Router();
 
@@ -15,7 +16,8 @@ router.get("/switch-to-qr", UrlController.switchToQrMode);
 // URL creation
 router.post("/create-url", validateUrl, UrlController.createTempUrl);
 
-// Main redirect route for short URLs
-router.get("/:id", UrlController.redirectToOriginal);
+// Display authentication pages
+router.get("/login", AuthController.renderLogin);
+router.get("/signup", AuthController.renderSignup);
 
 export default router;

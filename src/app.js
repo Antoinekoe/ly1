@@ -2,7 +2,6 @@ import express from "express";
 import bodyParser from "body-parser";
 import session from "express-session";
 import passport from "passport";
-import env from "dotenv";
 
 // Import routes
 import routes from "./routes/index.js";
@@ -14,9 +13,6 @@ import { initializeSession } from "./middleware/auth.js";
 
 // Import passport configuration
 import "./config/passport.js";
-
-// Load environment variables
-env.config();
 
 const app = express();
 

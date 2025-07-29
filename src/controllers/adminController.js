@@ -1,6 +1,7 @@
 import Link from "../models/link.js";
 import QRCodeModel from "../models/QRcode.js";
 import QrController from "./qrController.js";
+import passport from "passport";
 
 class AdminController {
   // Render admin dashboard
@@ -14,11 +15,11 @@ class AdminController {
       const userId = req.session.passport.user.id;
 
       // Get URL data
-      const urlData = await Link.getActiveByUserId(userId);
+      const urlData = await Link.getActiveLinksByUserId(userId);
       const totalClicks = await Link.getTotalClicksByUserId(userId);
 
       // Get QR code data
-      const qrData = await QRCodeModel.getActiveByUserId(userId);
+      const qrData = await QRCodeModel.getActiveQRCodesByUserId(userId);
       const totalScans = await QRCodeModel.getTotalScansByUserId(userId);
 
       // Check limits
@@ -54,7 +55,7 @@ class AdminController {
 
       if (req.body.type === "link") {
         // Create short URL
-        const userLinks = await Link.getActiveByUserId(userId);
+        const userLinks = await Link.getActiveLinksByUserId(userId);
         if (userLinks.length >= 10) {
           req.session.linksLimitReached = true;
           return res.redirect("/admin");

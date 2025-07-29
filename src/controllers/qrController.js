@@ -9,7 +9,7 @@ class QrController {
       const originalUrl = req.body.value;
 
       // Check if user has reached limit
-      const userQrCodes = await QRCodeModel.getActiveByUserId(userId);
+      const userQrCodes = await QRCodeModel.getActiveQRCodesByUserId(userId);
       if (userQrCodes.length >= 10) {
         req.session.qrCodesLimitReached = true;
         return res.redirect("/admin");

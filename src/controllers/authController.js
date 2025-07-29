@@ -1,4 +1,5 @@
 import User from "../models/user.js";
+import passport from "passport";
 
 class AuthController {
   // User registration

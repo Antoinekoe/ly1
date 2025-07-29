@@ -7,11 +7,12 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build:css": "tailwindcss -i ./public/css/input.css -o ./public/css/output.css --watch",
     "start": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "build": "npm run build:css"
   },
   "author": "Antoine Koekelkoren",
   "license": "ISC",
-  "description": "",
+  "description": "A French URL shortener and QR code generator that simplifies sharing and accessing links efficiently.",
   "dependencies": {
     "@tailwindcss/cli": "^4.1.11",
     "bcrypt": "^6.0.0",
@@ -21,13 +22,19 @@
     "express": "^5.1.0",
     "express-rate-limit": "^8.0.1",
     "express-session": "^1.18.1",
+    "helmet": "^8.1.0",
     "nanoid": "^5.1.5",
-    "nodemon": "^3.1.10",
     "passport": "^0.7.0",
     "passport-google-oauth2": "^0.2.0",
     "passport-local": "^1.0.0",
     "pg": "^8.16.3",
     "qrcode": "^1.5.4",
     "tailwindcss": "^4.1.11"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }

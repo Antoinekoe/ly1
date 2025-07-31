@@ -11,13 +11,6 @@ export function securityHeaders(req, res, next) {
   next();
 }
 
-// CSRF protection (if you add CSRF tokens later)
-export function csrfProtection(req, res, next) {
-  // This is a placeholder for CSRF protection
-  // You can add CSRF token validation here later
-  next();
-}
-
 // Content Security Policy
 export function contentSecurityPolicy(req, res, next) {
   res.setHeader(

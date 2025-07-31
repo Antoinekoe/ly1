@@ -106,12 +106,6 @@ class UrlController {
 
       const success = await Link.softDelete(linkId);
 
-      if (success) {
-        console.log("Link deleted successfully");
-      } else {
-        console.error("Failed to delete link");
-      }
-
       res.redirect("/admin");
     } catch (error) {
       console.error("Error deleting URL:", error);
@@ -123,9 +117,6 @@ class UrlController {
   static switchToUrlMode(req, res) {
     req.session.activeMode = "url";
     req.session.save((err) => {
-      if (err) {
-        console.log("Session save error:", err);
-      }
       res.redirect("/");
     });
   }
@@ -134,9 +125,6 @@ class UrlController {
   static switchToQrMode(req, res) {
     req.session.activeMode = "qr";
     req.session.save((err) => {
-      if (err) {
-        console.log("Session save error:", err);
-      }
       res.redirect("/");
     });
   }

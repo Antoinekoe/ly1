@@ -7,7 +7,11 @@ import passport from "passport";
 import routes from "./routes/index.js";
 
 // Import middleware
-import { errorHandler, notFoundHandler } from "./middleware/errorHandler.js";
+import {
+  errorHandler,
+  notFoundHandler,
+  databaseErrorHandler,
+} from "./middleware/errorHandler.js";
 import { securityHeaders } from "./middleware/security.js";
 import { initializeSession } from "./middleware/auth.js";
 
@@ -55,5 +59,6 @@ app.use("/", routes);
 // Error handling middleware
 app.use(notFoundHandler);
 app.use(errorHandler);
+app.use(databaseErrorHandler);
 
 export default app;

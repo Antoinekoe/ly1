@@ -86,12 +86,6 @@ class AdminController {
       const linkId = req.body.link_id;
       const success = await Link.softDelete(linkId);
 
-      if (success) {
-        console.log("Link deleted successfully");
-      } else {
-        console.error("Failed to delete link");
-      }
-
       res.redirect("/admin");
     } catch (error) {
       console.error("Error deleting URL:", error);
@@ -105,15 +99,8 @@ class AdminController {
       const qrCodeId = req.body.qr_code_id;
       const success = await QRCodeModel.softDelete(qrCodeId);
 
-      if (success) {
-        console.log("QR code deleted successfully");
-      } else {
-        console.error("Failed to delete QR code");
-      }
-
       res.redirect("/admin");
     } catch (error) {
-      console.error("Error deleting QR code:", error);
       res.redirect("/admin");
     }
   }

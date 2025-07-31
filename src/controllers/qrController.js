@@ -123,12 +123,6 @@ class QrController {
 
       const success = await QRCodeModel.softDelete(qrCodeId);
 
-      if (success) {
-        console.log("QR code deleted successfully");
-      } else {
-        console.error("Failed to delete QR code");
-      }
-
       res.redirect("/admin");
     } catch (error) {
       console.error("Error deleting QR code:", error);

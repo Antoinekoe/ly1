@@ -26,13 +26,7 @@ pool.on("error", (err) => {
 
 // Conditional connection test
 if (process.env.NODE_ENV === "development") {
-  pool.query("SELECT NOW()", (err, res) => {
-    if (err) {
-      console.error("Database connection failed:", err);
-    } else {
-      console.log("Database connected successfully");
-    }
-  });
+  pool.query("SELECT NOW()", (err, res) => {});
 }
 
 export default pool;

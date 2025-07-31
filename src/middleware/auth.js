@@ -4,7 +4,6 @@ export function requireAuth(req, res, next) {
     return next();
   }
 
-  console.log("User not authenticated, redirecting to login");
   res.redirect("/login");
 }
 

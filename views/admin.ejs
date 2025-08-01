@@ -79,7 +79,7 @@
               <div class="flex gap-2 justify-between">
                 <div class="flex gap-4">
                   <button class="text-blue-600 hover:text-blue-800 hover:cursor-pointer text-sm" onclick="copyToClipboard(`http://localhost:3000/<%= link.short_code %>`)">Copier</button>
-                  <button onclick="showUrlAlert(`http://localhost:3000/<%= link.original_url %>`)" class="hover:cursor-pointer text-sm">
+                  <button onclick="showUrlAlert(`<%= link.original_url %>`)" class="hover:cursor-pointer text-sm">
                     URL originale
                   </button>
                 </div>

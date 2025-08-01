@@ -10,8 +10,8 @@ const router = express.Router();
 // Mount route groups
 router.use("/", urlRoutes); // Home page and URL redirection
 router.use("/", apiRoutes); // API endpoints
+router.use("/", shortUrlRoutes); // Short URLs
 router.use("/", authRoutes); // Authentication
 router.use("/", adminRoutes); // Admin dashboard
-router.use("/", shortUrlRoutes);
 
 export default router;

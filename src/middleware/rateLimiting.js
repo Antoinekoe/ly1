@@ -3,7 +3,7 @@ import rateLimit from "express-rate-limit";
 // Rate limiting for URL creation (10 requests per 15 minutes)
 export const createUrlLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 20, // limit each IP to 10 requests per windowMs
+  max: 30, // limit each IP to 30 requests per windowMs
   handler: (req, res) => {
     req.session.limitError = "Trop de créations d'URL, essayez plus tard.";
     res.redirect("/admin");

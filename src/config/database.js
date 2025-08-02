@@ -4,14 +4,21 @@ env.config();
 
 // Database connection pool
 const pool = new pg.Pool({
-  user: process.env.USER,
-  host: process.env.HOST,
-  database: process.env.DATABASE,
-  password: process.env.PASSWORD,
-  port: process.env.DATABASE_PORT || 5432,
+  connectionString: process.env.DATABASE_URL || undefined,
+  // Fallback to individual variables if DATABASE_URL not available
+  user: process.env.USER || process.env.PGUSER,
+  host: process.env.HOST || process.env.PGHOST,
+  database: process.env.DATABASE || process.env.PGDATABASE,
+  password: process.env.PASSWORD || process.env.PGPASSWORD,
+  port: process.env.DATABASE_PORT || process.env.PGPORT || 5432,
   max: 20,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
+  // Add SSL for production
+  ssl:
+    process.env.NODE_ENV === "production"
+      ? { rejectUnauthorized: false }
+      : false,
 });
 
 // Error handling

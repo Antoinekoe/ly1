@@ -17,7 +17,7 @@ const pool = new pg.Pool({
   // Add SSL for production
   ssl:
     process.env.NODE_ENV === "production"
-      ? { rejectUnauthorized: false }
+      ? { rejectUnauthorized: false, sslmode: "require" }
       : false,
 });
 

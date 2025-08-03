@@ -131,6 +131,12 @@ class UrlController {
 
   // Render home page with session data
   static renderHome(req, res) {
+    console.log("Session data:", {
+      newUrl: req.session.newUrl,
+      activeMode: req.session.activeMode,
+      isURLCreated: req.session.isURLCreated,
+      isQrCodeCreated: req.session.isQrCodeCreated,
+    });
     // Initialize session defaults
     if (req.session.limitError === undefined) {
       req.session.limitError = false;

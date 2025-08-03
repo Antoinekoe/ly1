@@ -20,6 +20,8 @@ import "./config/passport.js";
 
 const app = express();
 
+app.set("trust proxy", 1);
+
 // Security middleware
 app.use(securityHeaders);
 
@@ -34,6 +36,8 @@ app.use(
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       httpOnly: true,
     },
+    proxy: true,
+    name: "ly1.sid",
   })
 );
 

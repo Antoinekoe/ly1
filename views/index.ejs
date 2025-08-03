@@ -81,7 +81,7 @@
       <% if(newUrl && newUrl.length > 0) { %>
       <div id="shortenUrlFormResult" class="py-3 bg-blue-600 mt-12 rounded-2xl w-full md:w-[35rem] <%= activeMode === 'url' ? '' : 'hidden' %>">
         <form action="/create-url" method="POST" class="flex  space-x-2 px-2">
-          <input id="shorturl" type="shorturl" name="newUrl" value="http://localhost:3000/<%= newUrl %>" placeholder="http://localhost:3000/<%= newUrl %>" class="bg-white rounded-[0.5rem] px-2 py-2 w-full text-sm focus:outline-none" readonly="">
+          <input id="shorturl" type="shorturl" name="newUrl" value="https://ly1.fr/<%= newUrl %>" placeholder="https://ly1.fr/<%= newUrl %>" class="bg-white rounded-[0.5rem] px-2 py-2 w-full text-sm focus:outline-none" readonly="">
           <button id="copy" type="button" class="flex justify-center items-center gap-1 cursor-pointer bg-white rounded-[0.5rem] px-2 py-2 font-semibold w-43" data-clipboard-target="#shorturl" title="Copy"><i class='bxr  bxs-copy' style='color:#5a5a5a'></i> Copier</button>
         </form>
 

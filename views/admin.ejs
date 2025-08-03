@@ -85,12 +85,12 @@
             <% links.forEach((link) => { %>
             <div class="border-b border-gray-100 pb-4">
               <div class="flex flex-col sm:flex-row justify-between mb-2 gap-2">
-                <span class="font-mono text-sm bg-gray-100 px-2 py-1 rounded">https://localhost:3000/<%= link.short_code %></span>
+                <span class="font-mono text-sm bg-gray-100 px-2 py-1 rounded">https://ly1.fr/<%= link.short_code %></span>
                 <span class="text-sm text-gray-500"><%= link.clicks %> clics</span>
               </div>
               <div class="flex gap-2 justify-between">
                 <div class="flex gap-4">
-                  <button class="text-blue-600 hover:text-blue-800 hover:cursor-pointer text-sm" onclick="copyToClipboard(`http://localhost:3000/<%= link.short_code %>`)">Copier</button>
+                  <button class="text-blue-600 hover:text-blue-800 hover:cursor-pointer text-sm" onclick="copyToClipboard(`https://ly1.fr/<%= link.short_code %>`)">Copier</button>
                   <button onclick="showUrlAlert(`<%= link.original_url %>`)" class="hover:cursor-pointer text-sm">
                     URL originale
                   </button>

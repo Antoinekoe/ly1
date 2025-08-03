@@ -2,6 +2,9 @@ import pg from "pg";
 import env from "dotenv";
 env.config();
 
+// Determine if we're in production
+const isProduction = process.env.NODE_ENV === "production";
+
 // Database connection pool
 const pool = new pg.Pool({
   connectionString: process.env.DATABASE_URL || undefined,
@@ -14,26 +17,37 @@ const pool = new pg.Pool({
   max: 20,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
-  // Add SSL for production
+  // SSL configuration - only use SSL if DATABASE_URL is provided (production)
   ssl:
-    process.env.NODE_ENV === "production"
-      ? { rejectUnauthorized: false, sslmode: "require" }
+    process.env.DATABASE_URL && isProduction
+      ? {
+          rejectUnauthorized: false,
+          sslmode: "require",
+        }
       : false,
 });
 
 // Error handling
 pool.on("error", (err) => {
-  if (process.env.NODE_ENV === "production") {
-    // Maybe send alert to monitoring service
+  console.error("Database connection error:", err);
+  if (isProduction) {
+    // In production, don't exit the process, just log the error
     console.error("Database error in production - check monitoring");
   } else {
-    process.exit(-1); // Only exit in development
+    // In development, you might want to exit for debugging
+    console.error("Database error in development");
   }
 });
 
-// Conditional connection test
-if (process.env.NODE_ENV === "development") {
-  pool.query("SELECT NOW()", (err, res) => {});
+// Test connection only in development
+if (!isProduction) {
+  pool.query("SELECT NOW()", (err, res) => {
+    if (err) {
+      console.error("Database connection test failed:", err);
+    } else {
+      console.log("Database connected successfully");
+    }
+  });
 }
 
 export default pool;
